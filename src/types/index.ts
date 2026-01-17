@@ -30,12 +30,12 @@ export interface PagedResult<T> {
   totalCount: number;
 }
 
-// Backend-dəki "ServiceResponse" wrapper-i
 export interface ApiResponse<T> {
   data: T;
   success: boolean;
   message: string;
   statusCode: number;
+  errors?: string[] | null; // <--- BU SƏTRİ ƏLAVƏ ET
 }
 
 // Axtarış üçün parametrlər (Frontdan göndərilən)

@@ -1,52 +1,38 @@
 @import "tailwindcss";
 
-/* Tailwind v4 - THEME CONFIGURATION 
-  Artıq config faylı yoxdur, hər şey buradadır.
-*/
+/* --- 1. RƏNGLƏR QALIR (Müştəri tərəfi üçün lazımdır) --- */
 @theme {
-  /* --- BİZİM RƏNGLƏR (Avtomir) --- */
-  
-  /* Əsas Qırmızı (Ferrari/Sport Red) */
+  /* Əsas Qırmızı */
   --color-primary: #E60000;
   --color-primary-dark: #B30000;
   --color-primary-light: #FF3333;
 
   /* Lüks Qara Tonları */
-  --color-dark-900: #050505; /* Əsas Background */
-  --color-dark-800: #121212; /* Kartlar / Konteynerlər */
-  --color-dark-700: #1F1F1F; /* Sərhədlər (Borders) */
-  --color-dark-text: #E5E5E5; /* Oxunaqlı Mətn */
+  --color-dark-900: #050505;
+  --color-dark-800: #121212;
+  --color-dark-700: #1F1F1F;
+  --color-dark-text: #E5E5E5;
 
-  /* Şriftlər (İstəsək gələcəkdə dəyişərik) */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui;
 }
 
-/* Saytın Ümumi Görünüşü */
+/* --- 2. BODY-DƏN RƏNGLƏRİ SİLDİK! --- */
+/* Artıq rəngi BaseLayout özü verəcək (Adminə Ağ, Sayta Qara) */
 body {
-  background-color: var(--color-dark-900);
-  color: var(--color-dark-text);
-  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+  /* background-color və color silindi! */
 }
 
-/* Input Number Oxlarını Tamamilə Gizlət */
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
-}
-
-input[type=number] {
-  -moz-appearance: textfield; /* Firefox üçün */
-}
-
+/* --- 3. UTILITIES (Bunlar qalsın, ziyansızdır) --- */
 @layer utilities {
-  /* Scrollbar-ı GİZLƏT (Amma işləsin) */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
   .no-scrollbar {
-    -ms-overflow-style: none;  /* IE və Edge üçün */
-    scrollbar-width: none;  /* Firefox üçün */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   /* Input type number oxlarını gizlət */
