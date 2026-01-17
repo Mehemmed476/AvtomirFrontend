@@ -1,0 +1,173 @@
+{
+    "Nav": {
+        "home": "Home",
+        "shop": "Shop",
+        "about": "About Us",
+        "contact": "Contact",
+        "login": "Login",
+        "register": "Register",
+        "profile": "Profile",
+        "cart": "Cart",
+        "logout": "Logout"
+    },
+    "Home": {
+        "heroBadge": "#1 Auto Parts in Azerbaijan",
+        "heroTitle": "For Your Car",
+        "heroHighlight": "Perfect Choice",
+        "heroSubtitle": "Thousands of original spare parts, fast delivery, and official warranty. Everything your car needs in one place.",
+        "shopNow": "Shop Now",
+        "learnMore": "Learn More",
+        "viewProduct": "View",
+        "viewAllProducts": "All Products",
+        "categoriesTitle": "Popular Categories",
+        "categoriesSubtitle": "Most searched spare parts",
+        "viewAll": "View All",
+        "newArrivalsTitle": "New Arrivals",
+        "newArrivalsSubtitle": "Check out the original products newly added to our stock.",
+        "features": {
+            "delivery": {
+                "title": "Fast Delivery",
+                "desc": "Within 24 hours in Baku"
+            },
+            "warranty": {
+                "title": "Official Warranty",
+                "desc": "Warranty on all products"
+            },
+            "original": {
+                "title": "Original Parts",
+                "desc": "100% Original and quality"
+            },
+            "support": {
+                "title": "Support 24/7",
+                "desc": "Contact our expert masters"
+            }
+        },
+        "dealBadge": "Deal of the Week",
+        "dealTitle": "Premium Engine Oils",
+        "dealSubtitle": "Up to 50% OFF on all synthetic oils only this week!",
+        "dealButton": "Order Now",
+        "stats": {
+            "products": "Product Range",
+            "clients": "Happy Clients",
+            "satisfaction": "Satisfaction",
+            "experience": "Experience",
+            "years": "Years"
+        },
+        "help": {
+            "title": "Can't find the part you need?",
+            "subtitle": "Our expert masters are ready to help you. Write to us or call, we'll solve it immediately.",
+            "button": "Contact Us"
+        }
+    },
+    "Shop": {
+        "title": "All Products",
+        "filters": "Filters",
+        "clear": "Clear",
+        "price": "Price",
+        "categories": "Categories",
+        "addToCart": "Add to Cart",
+        "view": "View",
+        "searchPlaceholder": "Product name, code or model...",
+        "results": "results",
+        "noResults": "No results found",
+        "noResultsDesc": "Change your search terms or clear filters to try again.",
+        "backToAll": "Back to All Products",
+        "Sort": {
+            "label": "Sort By",
+            "default": "Default",
+            "priceAsc": "Price: Low to High",
+            "priceDesc": "Price: High to Low",
+            "newest": "Newest Arrivals"
+        }
+    },
+    "Common": {
+        "loading": "Loading...",
+        "error": "An error occurred"
+    },
+    "Footer": {
+        "description": "The only address for high-quality and original spare parts for your car. Customer satisfaction is our top priority.",
+        "quickLinks": "Quick Links",
+        "customerService": "Customer Service",
+        "contactInfo": "Contact Info",
+        "copyright": "All rights reserved.",
+        "terms": "Terms of Use",
+        "locationTitle": "Our Location",
+        "privacy": "Privacy Policy",
+        "links": {
+            "home": "Home",
+            "shop": "Shop",
+            "about": "About Us",
+            "contact": "Contact"
+        },
+        "services": {
+            "profile": "My Account",
+            "cart": "Cart",
+            "orders": "My Orders",
+            "help": "Help Center"
+        }
+    },
+    "Product": {
+        "addToCart": "Add to Cart",
+        "buyWhatsapp": "Buy via WhatsApp",
+        "stockIn": "In Stock",
+        "stockOut": "Out of Stock",
+        "description": "Description",
+        "features": "Features",
+        "brand": "Brand",
+        "code": "SKU"
+    },
+    "About": {
+        "title": "About Us",
+        "subtitle": "Your reliable partner in car accessories since 2002.",
+        "historyTitle": "Our History",
+        "historyText": "AVTOMİR.AZ has been operating in Azerbaijan since 2002. We specialize in the sale of high-quality car accessories. Our main goal is to provide our customers with original products and professional service.",
+        "servicesTitle": "Why Choose Us?",
+        "services": {
+            "delivery": {
+                "title": "Delivery",
+                "desc": "Delivery is available throughout the city."
+            },
+            "install": {
+                "title": "Installation",
+                "desc": "You can order by phone and we will install the product at your address."
+            },
+            "hours": {
+                "title": "Working Hours",
+                "desc": "Every day 10:00 - 22:00"
+            }
+        },
+        "locationTitle": "Our Location",
+        "addressName": "AVTOMİR №1",
+        "addressText": "Ataturk Avenue 65a. Passing under the Darnagul bridge while moving from Ganjlik metro station towards Ayna Sultanova statue, pass the traffic light straight, located under the new building on the left after 150 meters.",
+        "note": "Please inform us before visiting our store.",
+        "deliveryTerms": {
+            "title": "Delivery & Payment Terms",
+            "paymentTitle": "Easy Payment",
+            "paymentDesc": "You can easily pay via Card-to-Card transfer or using MilliOn, E-Manat terminals.",
+            "shippingTitle": "Delivery via Taxi",
+            "shippingDesc": "Immediately after payment confirmation, your order is sent directly to your address via taxi service.",
+            "benefitTitle": "Why is it profitable?",
+            "benefitDesc": "This method saves your time and money. Instead of a round trip to the store, you only pay for a one-way delivery fee."
+        }
+    },
+    "Contact": {
+  "title": "Contact Us",
+  "subtitle": "Have a question? Write to us or visit our store.",
+  "form": {
+    "name": "Your Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "message": "Your Message",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "success": "Message sent successfully!"
+  },
+  "info": {
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "workingHours": "Working Hours",
+    "socials": "Social Networks"
+  }
+}
+}

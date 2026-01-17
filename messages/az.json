@@ -1,0 +1,173 @@
+{
+    "Nav": {
+        "home": "Ana Səhifə",
+        "shop": "Mağaza",
+        "about": "Haqqımızda",
+        "contact": "Əlaqə",
+        "login": "Giriş",
+        "register": "Qeydiyyat",
+        "profile": "Profil",
+        "cart": "Səbət",
+        "logout": "Çıxış"
+    },
+    "Home": {
+        "heroBadge": "Azərbaycanın #1 Avto hissələri",
+        "heroTitle": "Avtomobilin Üçün",
+        "heroHighlight": "Mükəmməl Seçim",
+        "heroSubtitle": "Minlərlə orijinal ehtiyat hissəsi, sürətli çatdırılma və rəsmi zəmanət. Maşınınızın ehtiyacı olan hər şey bir ünvanda.",
+        "shopNow": "İndi Al",
+        "learnMore": "Daha Çox",
+        "viewProduct": "Bax",
+        "viewAllProducts": "Bütün Məhsullar",
+        "categoriesTitle": "Populyar Kateqoriyalar",
+        "categoriesSubtitle": "Ən çox axtarılan ehtiyat hissələri",
+        "viewAll": "Hamısı",
+        "newArrivalsTitle": "Yeni Gələnlər",
+        "newArrivalsSubtitle": "Stokumuza yeni daxil olan orijinal məhsullarla tanış olun.",
+        "features": {
+            "delivery": {
+                "title": "Sürətli Çatdırılma",
+                "desc": "24 saat ərzində Bakı daxili"
+            },
+            "warranty": {
+                "title": "Rəsmi Zəmanət",
+                "desc": "Bütün məhsullara zəmanət"
+            },
+            "original": {
+                "title": "Orijinal Hissələr",
+                "desc": "100% Orijinal və keyfiyyətli"
+            },
+            "support": {
+                "title": "Dəstək 24/7",
+                "desc": "Peşəkar ustalarımızla əlaqə"
+            }
+        },
+        "dealBadge": "Həftənin Təklifi",
+        "dealTitle": "Premium Mühərrik Yağları",
+        "dealSubtitle": "Yalnız bu həftə bütün sintetik yağlara 50%-dək endirim!",
+        "dealButton": "İndi Sifariş Et",
+        "stats": {
+            "products": "Məhsul Çeşidi",
+            "clients": "Məmnun Müştəri",
+            "satisfaction": "Müştəri Razılığı",
+            "experience": "Təcrübə",
+            "years": "İl"
+        },
+        "help": {
+            "title": "Axtardığınız hissəni tapa bilmirsiniz?",
+            "subtitle": "Peşəkar ustalarımız sizə kömək etməyə hazırdır. Bizə yazın və ya zəng edin, dərhal həll edək.",
+            "button": "Bizimlə Əlaqə"
+        }
+    },
+    "Shop": {
+        "title": "Bütün Məhsullar",
+        "filters": "Filtrlər",
+        "clear": "Təmizlə",
+        "price": "Qiymət",
+        "categories": "Kateqoriyalar",
+        "addToCart": "Səbətə At",
+        "view": "Bax",
+        "searchPlaceholder": "Məhsul adı, kod və ya model...",
+        "results": "nəticə",
+        "noResults": "Heç nə tapılmadı",
+        "noResultsDesc": "Axtarış sözünü dəyişin və ya filtrləri təmizləyib yenidən cəhd edin.",
+        "backToAll": "Bütün Məhsullara Qayıt",
+        "Sort": {
+            "label": "Sıralama",
+            "default": "Varsayılan",
+            "priceAsc": "Ucuzdan Bahaya",
+            "priceDesc": "Bahadan Ucuza",
+            "newest": "Ən Yenilər"
+        }
+    },
+    "Common": {
+        "loading": "Yüklənir...",
+        "error": "Xəta baş verdi"
+    },
+    "Footer": {
+        "description": "Avtomobiliniz üçün ən keyfiyyətli və orijinal ehtiyat hissələrinin tək ünvanı. Bizim üçün müştəri məmnuniyyəti hər şeydən önəmlidir.",
+        "quickLinks": "Sürətli Keçidlər",
+        "customerService": "Müştəri Xidmətləri",
+        "contactInfo": "Əlaqə",
+        "copyright": "Bütün hüquqlar qorunur.",
+        "terms": "İstifadə Şərtləri",
+        "privacy": "Məxfilik Siyasəti",
+        "locationTitle": "Xəritədə Biz",
+        "links": {
+            "home": "Ana Səhifə",
+            "shop": "Mağaza",
+            "about": "Haqqımızda",
+            "contact": "Əlaqə"
+        },
+        "services": {
+            "profile": "Hesabım",
+            "cart": "Səbət",
+            "orders": "Sifarişlərim",
+            "help": "Yardım Mərkəzi"
+        }
+    },
+    "Product": {
+        "addToCart": "Səbətə At",
+        "buyWhatsapp": "WhatsApp-la Al",
+        "stockIn": "Stokda var",
+        "stockOut": "Hazırda bitib",
+        "description": "Məhsul Haqqında",
+        "features": "Xüsusiyyətlər",
+        "brand": "Brend",
+        "code": "Kod"
+    },
+    "About": {
+        "title": "Haqqımızda",
+        "subtitle": "2002-ci ildən bəri avtomobil aksessuarları dünyasında etibarlı tərəfdaşınız.",
+        "historyTitle": "Bizim Tariximiz",
+        "historyText": "AVTOMİR.AZ 2002-ci ildən Azərbaycanda fəaliyyət göstərir. Biz avtomobil aksessuarlarının satışını təşkil edirik. Əsas məqsədimiz müştərilərimizi keyfiyyətli məhsul və peşəkar xidmətlə təmin etməkdir.",
+        "servicesTitle": "Niyə Biz?",
+        "services": {
+            "delivery": {
+                "title": "Çatdırılma",
+                "desc": "Şəhər daxili çatdırılma mümkündür."
+            },
+            "install": {
+                "title": "Quraşdırılma",
+                "desc": "Bizdən alınan malı telefonla sifariş edib ünvanınızda quraşdırmaq mümkündür."
+            },
+            "hours": {
+                "title": "İş Rejimi",
+                "desc": "Hər gün saat 10:00-dan 22:00-dək"
+            }
+        },
+        "deliveryTerms": {
+            "title": "Çatdırılma və Ödəniş Şərtləri",
+            "paymentTitle": "Rahat Ödəniş",
+            "paymentDesc": "Ödənişləri kartdan-karta köçürməklə və ya MilliÖn, E-Manat terminalları vasitəsilə rahatlıqla edə bilərsiniz.",
+            "shippingTitle": "Taksi ilə Çatdırılma",
+            "shippingDesc": "Ödəniş təsdiqləndikdən dərhal sonra sifarişiniz taksi xidməti ilə birbaşa ünvanınıza göndərilir.",
+            "benefitTitle": "Niyə Sərfəlidir?",
+            "benefitDesc": "Bu üsul vaxtınıza və büdcənizə qənaət edir. Mağazaya gəlib-qayıtmaq əvəzinə, sadəcə bir istiqamətli çatdırılma haqqını ödəyirsiniz."
+        },
+        "locationTitle": "Ünvanımız",
+        "addressName": "AVTOMİR №1",
+        "addressText": "Atatürk prospekti 65a. Gənclik metrosundan üzü Ayna Sultanova heykəli istiqamətinə hərəkət edərkən Dərnəgül körpüsünün altından keçən kimi işıqforu düz keçib 150 metrdən sonra soldakı yeni tikilinin altı.",
+        "note": "Mağazamıza gəlməzdən öncə bizə məlumat verməyiniz xahiş olunur."
+    },
+    "Contact": {
+  "title": "Bizimlə Əlaqə",
+  "subtitle": "Sualınız var? Bizə yazın və ya mağazamıza yaxınlaşın.",
+  "form": {
+    "name": "Adınız",
+    "email": "Email Ünvanınız",
+    "phone": "Əlaqə Nömrəsi",
+    "message": "Mesajınız",
+    "send": "Mesajı Göndər",
+    "sending": "Göndərilir...",
+    "success": "Mesajınız uğurla göndərildi!"
+  },
+  "info": {
+    "address": "Ünvan",
+    "phone": "Telefon",
+    "email": "Email",
+    "workingHours": "İş Saatları",
+    "socials": "Sosial Şəbəkələr"
+  }
+}
+}

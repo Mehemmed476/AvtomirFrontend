@@ -1,26 +1,58 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Tailwind v4 - THEME CONFIGURATION 
+  Artıq config faylı yoxdur, hər şey buradadır.
+*/
+@theme {
+  /* --- BİZİM RƏNGLƏR (Avtomir) --- */
+  
+  /* Əsas Qırmızı (Ferrari/Sport Red) */
+  --color-primary: #E60000;
+  --color-primary-dark: #B30000;
+  --color-primary-light: #FF3333;
+
+  /* Lüks Qara Tonları */
+  --color-dark-900: #050505; /* Əsas Background */
+  --color-dark-800: #121212; /* Kartlar / Konteynerlər */
+  --color-dark-700: #1F1F1F; /* Sərhədlər (Borders) */
+  --color-dark-text: #E5E5E5; /* Oxunaqlı Mətn */
+
+  /* Şriftlər (İstəsək gələcəkdə dəyişərik) */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Saytın Ümumi Görünüşü */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-dark-900);
+  color: var(--color-dark-text);
+  font-family: var(--font-sans);
+}
+
+/* Input Number Oxlarını Tamamilə Gizlət */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+input[type=number] {
+  -moz-appearance: textfield; /* Firefox üçün */
+}
+
+@layer utilities {
+  /* Scrollbar-ı GİZLƏT (Amma işləsin) */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE və Edge üçün */
+    scrollbar-width: none;  /* Firefox üçün */
+  }
+
+  /* Input type number oxlarını gizlət */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 }
