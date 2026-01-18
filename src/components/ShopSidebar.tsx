@@ -26,7 +26,7 @@ export default function ShopSidebar({ categories, onClose }: Props) {
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set(key, value);
     else params.delete(key);
-    params.set("pageNumber", "1");
+    params.set("page", "1");
     router.push(`/shop?${params.toString()}`, { scroll: false });
   };
 
@@ -34,7 +34,7 @@ export default function ShopSidebar({ categories, onClose }: Props) {
     const params = new URLSearchParams(searchParams.toString());
     if (min) params.set("minPrice", min); else params.delete("minPrice");
     if (max) params.set("maxPrice", max); else params.delete("maxPrice");
-    params.set("pageNumber", "1");
+    params.set("page", "1");
     router.push(`/shop?${params.toString()}`, { scroll: false });
   }, 500);
 

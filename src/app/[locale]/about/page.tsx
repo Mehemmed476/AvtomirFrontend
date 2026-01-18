@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
-import { 
-  Clock, Truck, Wrench, Calendar, 
-  CreditCard, Banknote, Car, CheckCircle 
+import {
+  Clock, Truck, Wrench, Calendar,
+  CreditCard, Banknote, Car, CheckCircle
 } from 'lucide-react';
 import { Instagram, Facebook } from 'lucide-react';
 
@@ -33,12 +33,12 @@ export default async function AboutPage() {
             <p className="text-gray-300 leading-relaxed text-lg border-l-4 border-primary pl-6">
               {t('historyText')}
             </p>
-            
+
             <div className="flex gap-4 pt-4">
-               <a href="#" className="flex items-center gap-2 bg-dark-800 px-4 py-2 rounded-lg hover:bg-primary transition-colors">
+               <a href="https://www.instagram.com/avtomir.az_0553223066/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-dark-800 px-4 py-2 rounded-lg hover:bg-primary transition-colors">
                   <Instagram size={20} /> Instagram
                </a>
-               <a href="#" className="flex items-center gap-2 bg-dark-800 px-4 py-2 rounded-lg hover:bg-primary transition-colors">
+               <a href="https://www.facebook.com/Avtomirazerbaijan#" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-dark-800 px-4 py-2 rounded-lg hover:bg-primary transition-colors">
                   <Facebook size={20} /> Facebook
                </a>
             </div>

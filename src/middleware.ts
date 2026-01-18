@@ -6,26 +6,55 @@ import { NextRequest, NextResponse } from 'next/server';
 const intlMiddleware = createMiddleware(routing);
 
 export default function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, origin } = request.nextUrl;
 
-  // 2. Əgər istifadəçi ADMIN səhifəsinə girməyə çalışırsa
-  // (lakin login səhifəsinin özü deyilsə)
-  const isAdminPage = pathname.includes('/admin');
-  const isLoginPage = pathname.includes('/login');
+  // CRITICAL: Admin authentication check - RUNS FIRST before anything else
+  // Check if accessing admin routes (but not login page)
+  const isAdminRoute = pathname.includes('/admin');
+  const isLoginPage = pathname.includes('/admin/login');
 
-  if (isAdminPage && !isLoginPage) {
-    // 3. Cookie-də "admin_token" varmı?
+  console.log('🔍 Middleware Auth Check:', {
+    pathname,
+    isAdminRoute,
+    isLoginPage,
+    timestamp: new Date().toISOString()
+  });
+
+  // STRICT ADMIN PROTECTION - Block ALL admin routes without valid token
+  if (isAdminRoute && !isLoginPage) {
+    // Get token from cookies
     const token = request.cookies.get('admin_token')?.value;
 
-    // 4. Token yoxdursa -> Loginə at (Dili qorumaq şərtilə)
-    if (!token) {
-      // Mövcud dili URL-dən tapırıq (məs: /az/admin -> az)
-      const locale = pathname.split('/')[1] || 'az'; 
-      return NextResponse.redirect(new URL(`/${locale}/admin/login`, request.url));
+    console.log('🔐 Admin Token Verification:', {
+      hasToken: !!token,
+      tokenLength: token?.length || 0,
+      allCookies: request.cookies.getAll().map(c => c.name)
+    });
+
+    // NO TOKEN or EMPTY TOKEN = IMMEDIATE REDIRECT
+    if (!token || token.trim() === '') {
+      // Extract locale from path
+      const pathSegments = pathname.split('/').filter(Boolean);
+      const locale = ['az', 'en', 'ru'].includes(pathSegments[0]) ? pathSegments[0] : 'az';
+
+      console.error('🚨 UNAUTHORIZED ACCESS BLOCKED:', {
+        attemptedPath: pathname,
+        reason: 'No valid authentication token'
+      });
+
+      // Build login URL with return path
+      const loginUrl = new URL(`/${locale}/admin/login`, origin);
+      loginUrl.searchParams.set('returnUrl', pathname);
+      loginUrl.searchParams.set('reason', 'unauthorized');
+
+      // REDIRECT IMMEDIATELY - No admin content should be rendered
+      return NextResponse.redirect(loginUrl);
     }
+
+    console.log('✅ Admin token verified. Access granted to:', pathname);
   }
 
-  // 5. Əgər hər şey qaydasındadırsa, dil middleware-i işini görsün
+  // Continue to i18n middleware for other routes
   return intlMiddleware(request);
 }
 

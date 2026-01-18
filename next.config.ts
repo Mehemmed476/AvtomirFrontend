@@ -9,10 +9,18 @@ const nextConfig: NextConfig = {
       {
         protocol: 'http',
         hostname: '45.67.203.108',
-        port: '',
-        pathname: '/uploads_data/**', 
+        port: '8080',
+        pathname: '/uploads/**',
       },
     ],
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://45.67.203.108:8080/api/:path*',
+      },
+    ];
   },
 };
  

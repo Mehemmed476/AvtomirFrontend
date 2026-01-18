@@ -1,4 +1,4 @@
-import { getProductBySlug } from '@/lib/api';
+import { getProductBySlug, getImageUrl } from '@/lib/api';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
 import { notFound } from 'next/navigation';

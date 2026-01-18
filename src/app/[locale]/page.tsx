@@ -1,27 +1,21 @@
 import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
-import { getProducts } from '@/lib/api';
+import { getProducts, getImageUrl } from '@/lib/api';
 import { ArrowRight, CheckCircle, Truck, ShieldCheck, Clock, ShoppingCart, Eye, Phone, Users, Box, Star } from 'lucide-react';
 
 export default async function HomePage() {
   const t = await getTranslations('Home');
 
   // Backend-dən ən yeni 4 məhsulu çəkirik
-  const newProductsRes = await getProducts({ 
-    pageNumber: 1, 
-    pageSize: 4, 
-    sort: 'newest' 
+  const newProductsRes = await getProducts(1, 4, {
+    sort: 'newest'
   });
-  
-  const newProducts = newProductsRes?.data?.items || [];
+
+  const newProducts = newProductsRes?.data || [];
 
   // Helper: Şəkil URL düzəldən
-  const getImageUrl = (url: string) => {
-    if (!url || url === 'no-image.png') return '/assets/no-image.png';
-    if (url.startsWith('http')) return url;
-    return `http://45.67.203.108:8080/uploads/${url}`;
-  };
+  
 
   return (
     <main className="min-h-screen bg-dark-900 text-white">

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-
+import { getImageUrl} from "@/lib/api"
 interface Props {
   images: string[];
   mainImage: string;
@@ -13,11 +13,7 @@ export default function ProductGallery({ images, mainImage }: Props) {
   const [selectedImage, setSelectedImage] = useState(mainImage);
 
   // URL Helper (Eyni məntiq)
-  const getImageUrl = (url: string) => {
-    if (!url || url === 'no-image.png') return '/assets/no-image.png';
-    if (url.startsWith('http')) return url;
-    return `http://45.67.203.108:8080/uploads/${url}`;
-  };
+  
 
   // Bütün şəkilləri birləşdiririk (Main + Digərləri)
   const allImages = [mainImage, ...images].filter((v, i, a) => a.indexOf(v) === i && v); // Unikal edirik

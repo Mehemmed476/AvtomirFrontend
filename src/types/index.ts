@@ -10,7 +10,8 @@ export interface Product {
   isNew: boolean;
   isInStock: boolean;
   brandName?: string;
-  
+  stockQuantity?: number;       // Stok miqdarı
+
   // --- YENİ ƏLAVƏ OLUNANLAR (Detail Page Üçün) ---
   imageUrls?: string[];         // Əlavə şəkillər
   sku?: string;                 // Məhsul Kodu
@@ -19,6 +20,35 @@ export interface Product {
   whatsAppLink?: string;        // WhatsApp linki
   metaTitle?: string;           // SEO Title
   metaDescription?: string;     // SEO Description
+}
+
+// Admin Panel üçün məhsul detay tipi (ProductListDto + əlavə sahələr)
+export interface ProductDetailDto {
+  id: number;
+  name: string;
+  slug: string;
+  price: number;
+  oldPrice?: number;
+  mainImageUrl: string;
+  imageUrls?: string[];  // Gallery şəkilləri
+  galleryImageUrls?: string[];  // Backend alias (imageUrls ilə eynidir)
+  isNew: boolean;
+  isInStock: boolean;
+  isActive?: boolean;  // Məhsulun aktiv/passiv statusu
+  brandId?: number;  // Brend ID
+  brandName?: string;
+  categoryIds?: number[];  // Kateqoriya ID-ləri
+  sku?: string;
+  shortDescription?: string;
+  description?: string;
+  whatsAppLink?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  showPrice?: boolean;
+  priceText?: string;
+  discountRate?: number;
+  stockQuantity?: number;
+  categories?: CategoryTreeDto[];  // DEĞİŞTİ: Category[] → CategoryTreeDto[]
 }
 
 // Backend-dəki "PagedList" wrapper-i
@@ -52,17 +82,57 @@ export interface ProductParams {
 export interface Category {
   id: number;
   name: string;
+  slug: string;  // ƏLAVƏ EDİLDİ
+  description?: string;
+  imageUrl?: string;  // ƏLAVƏ EDİLDİ
   parentId?: number;
-  children?: Category[]; // Əgər alt kateqoriyalar varsa
+  children?: Category[];
 }
 
-export interface SiteSettings {
-  Phone: string;
-  Email: string;
-  Address: string;
-  MapUrl: string;
-  Facebook: string;
-  Instagram: string;
-  Whatsapp: string;
-  WorkHours: string;
+// ============================================
+// YENİ BACKEND DTO'LARI
+// ============================================
+
+// Backend ProductListDto - list görünümü üçün
+export interface ProductListDto {
+  id: number;
+  name: string;
+  slug: string;
+  mainImageUrl: string;
+  brandName: string;
+  price: number;
+  oldPrice?: number;
+  showPrice: boolean;       // Fiyat göster/gösterme
+  priceText: string;        // "123.45 ₼" və ya "Qiymət soruşun"
+  discountRate: number;     // İndirim yüzdesi (0-100)
+  isNew: boolean;
+  isInStock: boolean;
+  stockQuantity?: number;
+}
+
+// Backend CategoryTreeDto - hierarchical menü üçün
+export interface CategoryTreeDto {
+  id: number;
+  name: string;
+  slug: string;
+  parentId?: number;
+  children?: CategoryTreeDto[];  // Recursive alt kateqoriyalar
+}
+
+// Backend CategoryDetailDto - detay sayfası üçün
+export interface CategoryDetailDto {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  imageUrl?: string;
+  parentId?: number;
+  parentName?: string;
+}
+
+// Backend CategoryListDto - düz liste üçün
+export interface CategoryListDto {
+  id: number;
+  name: string;
+  slug: string;
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { Link, usePathname } from "@/i18n/routing";
-import { LayoutDashboard, Package, List, Settings, LogOut, Home, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Package, List, LogOut, Home, ShieldCheck } from "lucide-react";
+import { logout } from "@/lib/auth";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -10,8 +11,13 @@ export default function AdminSidebar() {
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/products", label: "Məhsullar", icon: Package },
     { href: "/admin/categories", label: "Kateqoriyalar", icon: List },
-    { href: "/admin/settings", label: "Tənzimləmələr", icon: Settings },
   ];
+
+  const handleLogout = () => {
+    if (confirm("Çıxış etmək istədiyinizə əminsiniz?")) {
+      logout();
+    }
+  };
 
   return (
     <aside className="w-72 bg-blue-900 text-white min-h-screen flex flex-col shrink-0 shadow-xl z-20 transition-all">
@@ -59,7 +65,10 @@ export default function AdminSidebar() {
         >
           <Home size={18} /> Sayta Qayıt
         </Link>
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-200 hover:bg-red-500/20 hover:text-red-100 transition-all">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-200 hover:bg-red-500/20 hover:text-red-100 transition-all"
+        >
           <LogOut size={18} /> Çıxış
         </button>
       </div>

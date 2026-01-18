@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "@/i18n/routing";
 import { Lock, Mail, Loader2, ArrowRight, ShieldCheck } from "lucide-react";
 import { loginAdmin } from "@/lib/api";
+import { setAuthToken } from "@/lib/auth";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -28,9 +29,31 @@ export default function AdminLoginPage() {
       });
 
       if (res.success && res.data && res.data.token) {
-        // Uğurlu giriş
-        document.cookie = `admin_token=${res.data.token}; path=/; max-age=86400; SameSite=Strict`; 
-        router.push("/admin");
+        // Uğurlu giriş - Token-i saxlayırıq (auth utility istifadə edərək)
+        setAuthToken(res.data.token, res.data.expireDate);
+
+        // Cookie-yə token əlavə et (middleware bunu yoxlayır)
+        // CRITICAL: Cookie must be set with correct attributes for middleware to read
+        const cookieValue = `admin_token=${res.data.token}; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = cookieValue;
+
+        console.log('✅ Login successful. Token saved to localStorage and cookie.');
+        console.log('🔐 Cookie set:', cookieValue);
+
+        // Dili URL-dən tap
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        const currentLocale = ['az', 'en', 'ru'].includes(pathParts[0]) ? pathParts[0] : 'az';
+
+        // Check if there's a return URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnUrl = urlParams.get('returnUrl');
+
+        // Redirect to return URL or admin panel
+        const redirectUrl = returnUrl || `/${currentLocale}/admin`;
+        console.log('🔄 Redirecting to:', redirectUrl);
+
+        // Use window.location.href for full page reload to ensure cookie is sent
+        window.location.href = redirectUrl;
       } else {
         // Backend-dən gələn mesaj (məs: Şifrə yanlışdır)
         throw new Error(res.message || "Email və ya şifrə yanlışdır");

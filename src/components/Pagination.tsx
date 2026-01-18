@@ -15,10 +15,10 @@ export default function Pagination({ currentPage, totalPages }: Props) {
   // URL-i dəyişən funksiya (Səhifə yenilənmir, sadəcə URL dəyişir)
   const changePage = (page: number) => {
     if (page < 1 || page > totalPages) return;
-    
+
     const params = new URLSearchParams(searchParams.toString());
-    params.set("pageNumber", page.toString());
-    
+    params.set("page", page.toString());  // DEĞİŞTİ: pageNumber → page
+
     // URL-i yeniləyirik (Next.js server komponenti bunu tutacaq)
     router.push(`?${params.toString()}`);
   };

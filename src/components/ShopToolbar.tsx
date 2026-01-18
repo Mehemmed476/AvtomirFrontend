@@ -39,7 +39,7 @@ export default function ShopToolbar({ totalCount, categories }: Props) {
     const params = new URLSearchParams(searchParams.toString());
     if (term) params.set("search", term);
     else params.delete("search");
-    params.set("pageNumber", "1");
+    params.set("page", "1");
     router.push(`?${params.toString()}`, { scroll: false });
   }, 500);
 
