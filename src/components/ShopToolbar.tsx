@@ -1,163 +1,230 @@
 "use client";
 
-import { useRouter } from "@/i18n/routing";
-import { useSearchParams } from "next/navigation";
-import { Search, ChevronDown, Check, Filter } from "lucide-react";
-import { useDebouncedCallback } from "use-debounce";
-import { useState, useRef, useEffect } from "react";
-import { useTranslations } from "next-intl";
-import { Category } from "@/types";
-import ShopSidebar from "./ShopSidebar"; // Sidebar-ı bura çağırırıq
+import { useTranslations } from 'next-intl';
+import { LayoutGrid, List, ChevronDown, Search, X, Filter } from 'lucide-react';
+import { Menu, Transition } from '@headlessui/react';
+import { Fragment, useState, useEffect } from 'react';
+import { useRouter } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
+import { Category } from '@/types';
+import { useDebouncedCallback } from 'use-debounce';
+import ShopSidebar from './ShopSidebar';
 
 interface Props {
-  totalCount: number;
-  categories: Category[]; // DÜZƏLİŞ: Kateqoriyalar bura gəlməlidir
+  categories: Category[];
 }
 
-export default function ShopToolbar({ totalCount, categories }: Props) {
-  const t = useTranslations("Shop");
+export default function ShopToolbar({ categories }: Props) {
+  const t = useTranslations('Shop');
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  const [isSortOpen, setIsSortOpen] = useState(false);
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false); // Mobile Filter State
-  const sortRef = useRef<HTMLDivElement>(null);
 
-  // Kənara basanda Sort bağlansın
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+
+  const currentSort = searchParams.get('sort') || 'default';
+  const currentView = searchParams.get('view') || 'grid'; 
+  const currentSearch = searchParams.get('search') || '';
+
+  const [searchTerm, setSearchTerm] = useState(currentSearch);
+
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
-        setIsSortOpen(false);
-      }
+    setSearchTerm(currentSearch);
+  }, [currentSearch]);
+
+  // Scroll kilidi
+  useEffect(() => {
+    if (isMobileFiltersOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Search Logic
-  const handleSearch = useDebouncedCallback((term: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (term) params.set("search", term);
-    else params.delete("search");
-    params.set("page", "1");
-    router.push(`?${params.toString()}`, { scroll: false });
-  }, 500);
-
-  // Sort Logic
-  const handleSort = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value) params.set("sort", value);
-    else params.delete("sort");
-    router.push(`?${params.toString()}`, { scroll: false });
-    setIsSortOpen(false);
-  };
+  }, [isMobileFiltersOpen]);
 
   const sortOptions = [
-    { label: t('Sort.default'), value: "" },
-    { label: t('Sort.priceAsc'), value: "priceAsc" },
-    { label: t('Sort.priceDesc'), value: "priceDesc" },
-    { label: t('Sort.newest'), value: "newest" },
+    { name: t('sortDefault'), value: 'default' },
+    { name: t('sortPriceAsc'), value: 'price_asc' },
+    { name: t('sortPriceDesc'), value: 'price_desc' },
+    { name: t('sortNameAsc'), value: 'name_asc' },
+    { name: t('sortNameDesc'), value: 'name_desc' },
+    { name: t('sortNewest'), value: 'newest' },
   ];
 
-  const currentSortValue = searchParams.get("sort") || "";
-  const currentSortLabel = sortOptions.find(o => o.value === currentSortValue)?.label || t('Sort.label');
+  const activeSort = sortOptions.find(o => o.value === currentSort) || sortOptions[0];
+
+  const updateParam = (key: string, value: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    if (value && value !== 'default') {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+
+    if (key === 'sort' || key === 'search') {
+      params.set('page', '1');
+    }
+    
+    router.push(`/shop?${params.toString()}`, { scroll: false });
+  };
+
+  const handleSearch = useDebouncedCallback((value: string) => {
+    updateParam('search', value.trim() === '' ? null : value);
+  }, 500);
+
+  const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setSearchTerm(val);
+    handleSearch(val);
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
+    updateParam('search', null);
+  };
 
   return (
     <>
-      <div className="bg-dark-800 p-4 rounded-2xl border border-dark-700 flex flex-col md:flex-row items-center justify-between gap-4 mb-6 shadow-lg shadow-black/10">
+      {/* TOOLBAR CONTAINER */}
+      <div className="bg-dark-800 rounded-2xl p-4 border border-dark-700 mb-8 sticky top-20 z-30 lg:relative lg:top-0 shadow-xl shadow-black/10">
         
-        {/* Sol: Axtarış */}
-        <div className="relative w-full md:w-96 group">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-primary transition-colors">
-            <Search size={18} />
-          </div>
-          <input 
-            type="text" 
-            placeholder={t('searchPlaceholder')}
-            defaultValue={searchParams.get("search")?.toString()}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="w-full bg-dark-900 border border-dark-600 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-gray-600"
-          />
-        </div>
+        {/* Bütün elementlər bir sətirdə */}
+        <div className="flex flex-col lg:flex-row items-center gap-3">
 
-        {/* Sağ Tərəf: Filter (Mobil) + Sort + Count */}
-        <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-          
-          {/* MOBILE FILTER BUTTON (Yalnız Mobildə görünür) */}
-          <button 
-            onClick={() => setIsMobileFilterOpen(true)}
-            className="lg:hidden flex items-center justify-center gap-2 bg-dark-900 border border-dark-600 rounded-xl px-4 py-3 text-white hover:border-primary transition-colors flex-1 md:flex-none"
-          >
-            <Filter size={18} />
-            <span className="text-sm font-medium">{t('filters')}</span>
-          </button>
-
-          {/* Desktop Count */}
-          <div className="hidden lg:block text-xs text-gray-500 font-medium bg-dark-900 px-3 py-2 rounded-lg border border-dark-700">
-            {totalCount} {t('results')}
+          {/* Axtarış */}
+          <div className="relative w-full lg:flex-1 group">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <Search size={18} className="text-gray-500 group-focus-within:text-primary transition-colors" />
+            </div>
+            <input
+              type="text"
+              placeholder={t('searchPlaceholder') || "Axtarış..."}
+              className="w-full bg-dark-900 border border-dark-600 rounded-xl py-2.5 pl-10 pr-10 text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
+              value={searchTerm}
+              onChange={onSearchChange}
+            />
+            {searchTerm && (
+              <button
+                onClick={clearSearch}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-white transition-colors"
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
 
-          {/* Sort Dropdown */}
-          <div className="relative w-full md:w-48 flex-1 md:flex-none" ref={sortRef}>
-            <button 
-              onClick={() => setIsSortOpen(!isSortOpen)}
-              className={`
-                w-full flex items-center justify-between bg-dark-900 border border-dark-600 
-                rounded-xl px-4 py-3 text-sm text-white transition-all duration-200
-                hover:border-primary/50 focus:border-primary
-                ${isSortOpen ? "border-primary ring-1 ring-primary" : ""}
-              `}
+          {/* Filter, Sort və View - bir sətirdə */}
+          <div className="flex items-center gap-2 w-full lg:w-auto">
+
+            {/* Filter Düyməsi (Yalnız Mobile) */}
+            <button
+              onClick={() => setIsMobileFiltersOpen(true)}
+              className="lg:hidden flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-dark-700 text-white rounded-xl text-sm font-medium hover:bg-dark-600 transition-colors border border-dark-600"
             >
-              <span className="truncate">{currentSortLabel}</span>
-              <ChevronDown size={16} className={`text-gray-500 transition-transform ${isSortOpen ? "rotate-180" : ""}`} />
+              <Filter size={18} className="text-primary shrink-0" />
+              <span>{t('filters')}</span>
             </button>
 
-            {isSortOpen && (
-              <div className="absolute top-full right-0 mt-2 w-full bg-dark-800 border border-dark-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                <div className="p-1">
-                  {sortOptions.map((option) => {
-                    const isSelected = option.value === currentSortValue;
-                    return (
-                      <button
-                        key={option.value}
-                        onClick={() => handleSort(option.value)}
-                        className={`
-                          w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors text-left
-                          ${isSelected 
-                            ? "bg-primary/10 text-primary font-medium" 
-                            : "text-gray-300 hover:bg-dark-700 hover:text-white"}
-                        `}
-                      >
-                        {option.label}
-                        {isSelected && <Check size={14} />}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            {/* Sort Dropdown */}
+            <Menu as="div" className="relative flex-1 lg:flex-none">
+              <Menu.Button className="w-full lg:w-auto flex items-center justify-between gap-2 text-sm text-white hover:text-primary transition-colors px-3 py-2.5 rounded-xl hover:bg-dark-700 bg-dark-900 border border-dark-600">
+                <span className="flex items-center gap-2 overflow-hidden">
+                   <span className="text-gray-400 lg:inline hidden whitespace-nowrap">{t('sortBy')}:</span>
+                   <span className="font-medium truncate block">{activeSort.name}</span>
+                </span>
+                <ChevronDown size={16} className="shrink-0 text-gray-500" />
+              </Menu.Button>
+
+              <Transition
+                as={Fragment}
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
+              >
+                <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-dark-800 border border-dark-700 rounded-xl shadow-xl focus:outline-none z-50 overflow-hidden">
+                  <div className="p-1">
+                    {sortOptions.map((option) => (
+                      <Menu.Item key={option.value}>
+                        {({ active }) => (
+                          <button
+                            onClick={() => updateParam('sort', option.value)}
+                            className={`
+                              w-full text-left px-3 py-2 rounded-lg text-sm transition-colors
+                              ${active ? 'bg-primary/10 text-primary' : 'text-gray-300 hover:bg-dark-700'}
+                              ${currentSort === option.value ? 'text-primary font-medium' : ''}
+                            `}
+                          >
+                            {option.name}
+                          </button>
+                        )}
+                      </Menu.Item>
+                    ))}
+                  </div>
+                </Menu.Items>
+              </Transition>
+            </Menu>
+
+            {/* View Toggle (Yalnız Desktop) */}
+            <div className="hidden lg:flex items-center bg-dark-900 rounded-lg p-1 border border-dark-600 h-[42px] shrink-0">
+              <button
+                onClick={() => updateParam('view', 'grid')}
+                className={`p-1.5 rounded-md transition-all h-full flex items-center justify-center ${currentView === 'grid' ? 'bg-dark-700 text-white shadow-sm' : 'text-gray-500 hover:text-white'}`}
+              >
+                <LayoutGrid size={18} />
+              </button>
+              <button
+                onClick={() => updateParam('view', 'list')}
+                className={`p-1.5 rounded-md transition-all h-full flex items-center justify-center ${currentView === 'list' ? 'bg-dark-700 text-white shadow-sm' : 'text-gray-500 hover:text-white'}`}
+              >
+                <List size={18} />
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
 
-      {/* MOBILE FILTER DRAWER (MODAL) */}
-      {isMobileFilterOpen && (
-        <div className="fixed inset-0 z-[100] lg:hidden">
-          {/* Arxa fon qaranlığı */}
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
-            onClick={() => setIsMobileFilterOpen(false)}
-          />
-          
-          {/* Sürüşən Panel */}
-          <div className="absolute inset-y-0 right-0 w-[85%] max-w-sm bg-dark-900 shadow-2xl border-l border-dark-700 animate-in slide-in-from-right duration-300">
-             <div className="h-full p-4">
-                {/* Eyni ShopSidebar-ı burada istifadə edirik */}
-                <ShopSidebar categories={categories} onClose={() => setIsMobileFilterOpen(false)} />
-             </div>
-          </div>
+      {/* MOBILE FILTER DRAWER */}
+      <Transition show={isMobileFiltersOpen} as={Fragment}>
+        <div className="relative z-50 lg:hidden">
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div 
+                className="fixed inset-0 bg-black/80 backdrop-blur-sm" 
+                onClick={() => setIsMobileFiltersOpen(false)}
+            />
+          </Transition.Child>
+
+          <Transition.Child
+            as={Fragment}
+            enter="transform transition ease-in-out duration-300"
+            enterFrom="translate-y-full"
+            enterTo="translate-y-0"
+            leave="transform transition ease-in-out duration-300"
+            leaveFrom="translate-y-0"
+            leaveTo="translate-y-full"
+          >
+            <div className="fixed inset-x-0 bottom-0 top-[60px] flex flex-col bg-dark-800 rounded-t-3xl overflow-hidden shadow-2xl border-t border-dark-700">
+               <ShopSidebar 
+                  categories={categories} 
+                  onClose={() => setIsMobileFiltersOpen(false)} 
+               />
+            </div>
+          </Transition.Child>
         </div>
-      )}
+      </Transition>
     </>
   );
 }

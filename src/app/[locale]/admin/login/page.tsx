@@ -1,174 +1,186 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "@/i18n/routing";
-import { Lock, Mail, Loader2, ArrowRight, ShieldCheck } from "lucide-react";
-import { loginAdmin } from "@/lib/api";
-import { setAuthToken } from "@/lib/auth";
+import { useState } from 'react';
+import { useRouter } from '@/i18n/routing';
+import Cookies from 'js-cookie';
+import { toast } from 'react-hot-toast';
+import { Eye, EyeOff, Loader2, Mail, Lock, ShieldCheck } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  
-  const [formData, setFormData] = useState({
-    email: "",
-    password: ""
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    setIsLoading(true);
 
     try {
-      // API-yə "Email" və "Password" göndəririk
-      const res = await loginAdmin({
-        Email: formData.email,
-        Password: formData.password
+      const res = await fetch('http://45.67.203.108:8080/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (res.success && res.data && res.data.token) {
-        // Uğurlu giriş - Token-i saxlayırıq (auth utility istifadə edərək)
-        setAuthToken(res.data.token, res.data.expireDate);
+      const data = await res.json();
 
-        // Cookie-yə token əlavə et (middleware bunu yoxlayır)
-        // CRITICAL: Cookie must be set with correct attributes for middleware to read
-        const cookieValue = `admin_token=${res.data.token}; path=/; max-age=86400; SameSite=Lax`;
-        document.cookie = cookieValue;
+      if (res.ok && data.success) {
+        const token = data.data?.token || data.token;
 
-        console.log('✅ Login successful. Token saved to localStorage and cookie.');
-        console.log('🔐 Cookie set:', cookieValue);
+        if (token) {
+          // Cookie - middleware oxuya bilsin deyə
+          Cookies.set('token', token, { expires: 1 });
 
-        // Dili URL-dən tap
-        const pathParts = window.location.pathname.split('/').filter(Boolean);
-        const currentLocale = ['az', 'en', 'ru'].includes(pathParts[0]) ? pathParts[0] : 'az';
-
-        // Check if there's a return URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const returnUrl = urlParams.get('returnUrl');
-
-        // Redirect to return URL or admin panel
-        const redirectUrl = returnUrl || `/${currentLocale}/admin`;
-        console.log('🔄 Redirecting to:', redirectUrl);
-
-        // Use window.location.href for full page reload to ensure cookie is sent
-        window.location.href = redirectUrl;
+          toast.success('Xoş gəldiniz!');
+          router.refresh();
+          router.push('/admin');
+        } else {
+          toast.error('Token tapılmadı!');
+        }
       } else {
-        // Backend-dən gələn mesaj (məs: Şifrə yanlışdır)
-        throw new Error(res.message || "Email və ya şifrə yanlışdır");
+        toast.error(data.message || 'Giriş uğursuz oldu');
       }
-    } catch (err: any) {
-      setError(err.message || "Sistem xətası baş verdi");
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Sistem xətası baş verdi');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex bg-white">
-      
-      {/* --- SOL TƏRƏF (FORM) --- */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-24 bg-white z-10">
-        <div className="w-full max-w-md space-y-8">
-          
-          {/* Başlıq */}
-          <div className="text-center lg:text-left space-y-2">
-            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
-              <ShieldCheck size={14} /> Avtomir Admin
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 relative overflow-hidden">
+
+      {/* Background Effects */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
+      </div>
+
+      {/* Grid Pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
+          backgroundSize: '50px 50px'
+        }}
+      />
+
+      {/* Login Card */}
+      <div className="relative w-full max-w-md">
+
+        {/* Card Glow */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 via-primary/20 to-primary/50 rounded-3xl blur-lg opacity-30" />
+
+        <div className="relative bg-gray-900/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 shadow-2xl overflow-hidden">
+
+          {/* Top Accent Line */}
+          <div className="h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
+
+          <div className="p-8 sm:p-10">
+
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-4 border border-primary/20">
+                <ShieldCheck size={32} className="text-primary" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                Admin Panel
+              </h1>
+              <p className="text-gray-400 text-sm">
+                Davam etmək üçün hesabınıza daxil olun
+              </p>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Sistemə Giriş</h1>
-            <p className="text-gray-500">Davam etmək üçün məlumatlarınızı daxil edin.</p>
+
+            {/* Form */}
+            <form onSubmit={handleLogin} className="space-y-5">
+
+              {/* Email */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-300">
+                  Email Ünvanı
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Mail size={18} className="text-gray-500 group-focus-within:text-primary transition-colors" />
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-gray-800/50 border border-gray-700 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    placeholder="admin@avtomir.az"
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-300">
+                  Şifrə
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Lock size={18} className="text-gray-500 group-focus-within:text-primary transition-colors" />
+                  </div>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-gray-800/50 border border-gray-700 rounded-xl py-3.5 pl-12 pr-12 text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="relative w-full mt-6 group"
+              >
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-primary-dark rounded-xl blur opacity-60 group-hover:opacity-100 transition duration-300" />
+                <div className="relative w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg">
+                  {isLoading ? (
+                    <>
+                      <Loader2 size={20} className="animate-spin" />
+                      <span>Giriş edilir...</span>
+                    </>
+                  ) : (
+                    <span>Daxil Ol</span>
+                  )}
+                </div>
+              </button>
+            </form>
+
+            {/* Footer */}
+            <div className="mt-8 pt-6 border-t border-gray-800 text-center">
+              <p className="text-gray-500 text-xs">
+                Bu panel yalnız səlahiyyətli şəxslər üçün nəzərdə tutulub.
+              </p>
+            </div>
           </div>
+        </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            
-            {error && (
-              <div className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-sm animate-in fade-in">
-                <div className="w-2 h-2 bg-red-500 rounded-full shrink-0" />
-                {error}
-              </div>
-            )}
-
-            {/* Email Input */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-gray-700 block">Email</label>
-              <div className="relative group">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors">
-                  <Mail size={20} />
-                </div>
-                <input 
-                  type="email" 
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-gray-800 placeholder-gray-400 font-medium"
-                  placeholder="admin@avtomir.az"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Password Input ("Unutmusunuz?" silindi) */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-gray-700 block">Şifrə</label>
-              <div className="relative group">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors">
-                  <Lock size={20} />
-                </div>
-                <input 
-                  type="password" 
-                  value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-gray-800 placeholder-gray-400 font-medium"
-                  placeholder="•••••••"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed group"
-            >
-              {loading ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <>
-                  Daxil Ol <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
-            </button>
-
-          </form>
-
-          <p className="text-center text-xs text-gray-400 pt-4">
-            © 2026 Avtomir Panel v2.0
+        {/* Brand */}
+        <div className="mt-6 text-center">
+          <p className="text-gray-600 text-sm font-medium">
+            AVTO<span className="text-primary">MIR</span>
           </p>
         </div>
       </div>
-
-      {/* --- SAĞ TƏRƏF (Görünüş) --- */}
-      <div className="hidden lg:flex w-1/2 bg-[#0a192f] relative overflow-hidden items-center justify-center">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '7s' }} />
-        
-        <div className="relative z-10 p-12 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl max-w-lg text-center shadow-2xl">
-          <div className="w-20 h-20 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg transform -rotate-6">
-            <ShieldCheck size={40} className="text-white" />
-          </div>
-          <h2 className="text-3xl font-bold text-white mb-4 tracking-tight">Avtomir İdarəetmə</h2>
-          <p className="text-blue-200/80 leading-relaxed text-lg">
-            Saytınızı rahat idarə edin. Məhsullar, sifarişlər və tənzimləmələr bir yerdə.
-          </p>
-        </div>
-        <div className="absolute inset-0 opacity-10" 
-             style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}>
-        </div>
-      </div>
-
     </div>
   );
 }

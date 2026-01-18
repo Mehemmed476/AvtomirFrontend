@@ -63,22 +63,23 @@
         "title": "All Products",
         "filters": "Filters",
         "clear": "Clear",
+        "clearFilters": "Clear Filters",
         "price": "Price",
         "categories": "Categories",
         "addToCart": "Add to Cart",
         "view": "View",
         "searchPlaceholder": "Product name, code or model...",
-        "results": "results",
-        "noResults": "No results found",
+        "showingResults": "Showing {count} results",
+        "sortBy": "Sort by",
+        "sortDefault": "Default",
+        "sortPriceAsc": "Price: Low to High",
+        "sortPriceDesc": "Price: High to Low",
+        "sortNameAsc": "Name (A-Z)",
+        "sortNameDesc": "Name (Z-A)",
+        "sortNewest": "Newest Arrivals",
+        "noResultsTitle": "Sorry, no results found 😕",
         "noResultsDesc": "Change your search terms or clear filters to try again.",
-        "backToAll": "Back to All Products",
-        "Sort": {
-            "label": "Sort By",
-            "default": "Default",
-            "priceAsc": "Price: Low to High",
-            "priceDesc": "Price: High to Low",
-            "newest": "Newest Arrivals"
-        }
+        "backToAll": "Back to All Products"
     },
     "Common": {
         "loading": "Loading...",
@@ -151,23 +152,23 @@
         }
     },
     "Contact": {
-  "title": "Contact Us",
-  "subtitle": "Have a question? Write to us or visit our store.",
-  "form": {
-    "name": "Your Name",
-    "email": "Email Address",
-    "phone": "Phone Number",
-    "message": "Your Message",
-    "send": "Send Message",
-    "sending": "Sending...",
-    "success": "Message sent successfully!"
-  },
-  "info": {
-    "address": "Address",
-    "phone": "Phone",
-    "email": "Email",
-    "workingHours": "Working Hours",
-    "socials": "Social Networks"
-  }
-}
+        "title": "Contact Us",
+        "subtitle": "Have a question? Write to us or visit our store.",
+        "form": {
+            "name": "Your Name",
+            "email": "Email Address",
+            "phone": "Phone Number",
+            "message": "Your Message",
+            "send": "Send Message",
+            "sending": "Sending...",
+            "success": "Message sent successfully!"
+        },
+        "info": {
+            "address": "Address",
+            "phone": "Phone",
+            "email": "Email",
+            "workingHours": "Working Hours",
+            "socials": "Social Networks"
+        }
+    }
 }

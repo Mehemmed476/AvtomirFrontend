@@ -10,7 +10,7 @@ import { useTranslations } from "next-intl";
 
 interface Props {
   categories: Category[];
-  onClose?: () => void;
+  onClose?: () => void; // Mobildə bağlanmaq üçün
 }
 
 export default function ShopSidebar({ categories, onClose }: Props) {
@@ -56,26 +56,30 @@ export default function ShopSidebar({ categories, onClose }: Props) {
     if (onClose) onClose();
   };
 
+  // --- STİL MƏNTİQİ ---
+  // onClose varsa (Mobile Drawer içindədir): Full hündürlük, border yoxdur, fixed DEYİL (valideyn fixed edir).
+  // onClose yoxsa (Desktop Sidebar): Sticky, border var, shadow var.
+  const containerClasses = onClose 
+    ? "h-full w-full bg-dark-800" 
+    : "sticky top-24 h-[85vh] rounded-2xl shadow-xl shadow-black/20 bg-dark-800 border border-dark-700";
+
   return (
-    <div 
-      className={`
-        bg-dark-800 rounded-2xl border border-dark-700 shadow-xl shadow-black/20 flex flex-col
-        ${onClose ? 'h-full border-none rounded-none' : 'sticky top-24 h-[85vh]'} 
-      `}
-    >
+    <div className={`flex flex-col transition-all ${containerClasses}`}>
       
-      {/* 1. HEADER (SABİT) - Scroll olunmur */}
-      <div className="flex-none p-6 border-b border-dark-700 flex items-center justify-between bg-dark-800 rounded-t-2xl z-20">
+      {/* 1. HEADER */}
+      <div className="flex-none p-6 border-b border-dark-700 flex items-center justify-between z-20">
         <h3 className="font-bold text-lg text-white flex items-center gap-2">
           <Filter size={18} className="text-primary" /> {t('filters')}
         </h3>
         
+        {/* Mobildə bağlama düyməsi */}
         {onClose && (
-          <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-white">
+          <button onClick={onClose} className="p-2 bg-dark-700 rounded-full text-gray-400 hover:text-white transition-colors">
             <X size={24} />
           </button>
         )}
 
+        {/* Filtrləri təmizlə düyməsi (Desktop) */}
         {!onClose && (minPrice || maxPrice || selectedCatId) && (
           <button onClick={clearFilters} className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors">
             <X size={14} /> {t('clear')}
@@ -83,8 +87,8 @@ export default function ShopSidebar({ categories, onClose }: Props) {
         )}
       </div>
 
-      {/* 2. BODY (SCROLL) - Yalnız bura scroll olur */}
-      <div className="flex-1 overflow-y-auto no-scrollbar p-6">
+      {/* 2. BODY (SCROLL) */}
+      <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
         
         {/* Qiymət */}
         <div className="mb-8">
@@ -144,14 +148,14 @@ export default function ShopSidebar({ categories, onClose }: Props) {
         </div>
       </div>
       
-      {/* 3. FOOTER (MOBILE ÜÇÜN DÜYMƏ) - Sabit */}
+      {/* 3. FOOTER (MOBILE ÜÇÜN "Nəticələri Göstər" DÜYMƏSİ) */}
       {onClose && (
-        <div className="flex-none p-4 border-t border-dark-700 bg-dark-800">
+        <div className="flex-none p-4 border-t border-dark-700 pb-8 bg-dark-800">
             <button 
             onClick={onClose}
-            className="w-full bg-primary text-white font-bold py-3 rounded-xl lg:hidden"
+            className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-primary/20"
             >
-            Nəticələri Göstər
+             Nəticələri Göstər
             </button>
         </div>
       )}

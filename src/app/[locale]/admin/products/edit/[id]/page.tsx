@@ -29,7 +29,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [formState, setFormState] = useState({
     name: "",
     sku: "",
-    brandId: "",
     categoryIds: [] as number[],
     price: "",
     oldPrice: "",
@@ -59,6 +58,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         const p = productRes.data;
 
         console.log("✅ Məhsul yükləndi:", p);
+        console.log("🔍 Bütün field-lər:", Object.keys(p));
 
         // Backend categoryIds və ya categories array'i dönə bilər
         const categoryIds = p.categoryIds ||
@@ -67,7 +67,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         setFormState({
           name: p.name || "",
           sku: p.sku || "",
-          brandId: p.brandId?.toString() || "",
           categoryIds: categoryIds,
           price: p.price?.toString() || "",
           oldPrice: p.oldPrice?.toString() || "",
@@ -79,7 +78,24 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         });
 
         setExistingMainImageUrl(p.mainImageUrl || "");
-        setExistingGalleryUrls(p.galleryImageUrls || p.imageUrls || []);
+
+        // Backend müxtəlif field adları ilə qaytara bilər
+        let galleryUrls: string[] = [];
+        if (p.galleryImageUrls && p.galleryImageUrls.length > 0) {
+          galleryUrls = p.galleryImageUrls;
+        } else if (p.imageUrls && p.imageUrls.length > 0) {
+          galleryUrls = p.imageUrls;
+        } else if ((p as any).images && Array.isArray((p as any).images)) {
+          // images array of objects ola bilər: [{url: "..."}, ...]
+          const images = (p as any).images;
+          galleryUrls = images.map((img: any) => typeof img === 'string' ? img : img.url || img.imageUrl);
+        } else if ((p as any).galleryImages && Array.isArray((p as any).galleryImages)) {
+          const images = (p as any).galleryImages;
+          galleryUrls = images.map((img: any) => typeof img === 'string' ? img : img.url || img.imageUrl);
+        }
+
+        console.log("🖼️ Gallery URLs found:", galleryUrls);
+        setExistingGalleryUrls(galleryUrls.filter(Boolean));
       } else {
         console.error("❌ Məhsul yüklənmədi:", {
           productRes,
@@ -197,7 +213,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         id: parseInt(id),  // Backend DTO'da Id mütləqdir
         name: formState.name,
         sku: formState.sku || undefined,
-        brandId: formState.brandId ? parseInt(formState.brandId) : undefined,
         price: parseFloat(formState.price),
         oldPrice: formState.oldPrice ? parseFloat(formState.oldPrice) : undefined,
         shortDescription: formState.shortDescription,
@@ -266,12 +281,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-2">SKU / Məhsul Kodu</label>
                 <input value={formState.sku} onChange={(e) => setFormState({...formState, sku: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Məs: BMW-RAD-001" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Brend ID (istəyə görə)</label>
-                <input value={formState.brandId} onChange={(e) => setFormState({...formState, brandId: e.target.value})} type="number" min="1" className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none" placeholder="Brend ID daxil edin" />
-                <p className="text-xs text-slate-500 mt-1">Brend ID-ni backend-dən əldə etməlisiniz</p>
               </div>
 
               <div>

@@ -63,22 +63,23 @@
         "title": "Bütün Məhsullar",
         "filters": "Filtrlər",
         "clear": "Təmizlə",
+        "clearFilters": "Filtrləri Təmizlə",
         "price": "Qiymət",
         "categories": "Kateqoriyalar",
         "addToCart": "Səbətə At",
         "view": "Bax",
         "searchPlaceholder": "Məhsul adı, kod və ya model...",
-        "results": "nəticə",
-        "noResults": "Heç nə tapılmadı",
-        "noResultsDesc": "Axtarış sözünü dəyişin və ya filtrləri təmizləyib yenidən cəhd edin.",
-        "backToAll": "Bütün Məhsullara Qayıt",
-        "Sort": {
-            "label": "Sıralama",
-            "default": "Varsayılan",
-            "priceAsc": "Ucuzdan Bahaya",
-            "priceDesc": "Bahadan Ucuza",
-            "newest": "Ən Yenilər"
-        }
+        "showingResults": "{count} nəticə",
+        "sortBy": "Sıralama",
+        "sortDefault": "Varsayılan",
+        "sortPriceAsc": "Ucuzdan Bahaya",
+        "sortPriceDesc": "Bahadan Ucuza",
+        "sortNameAsc": "Ad (A-Z)",
+        "sortNameDesc": "Ad (Z-A)",
+        "sortNewest": "Ən Yenilər",
+        "noResultsTitle": "Təəssüf, heç nə tapılmadı 😕",
+        "noResultsDesc": "Axtarış sözünü dəyişdirin və ya filtrləri təmizləyib yenidən yoxlayın.",
+        "backToAll": "Bütün Məhsullara Qayıt"
     },
     "Common": {
         "loading": "Yüklənir...",
@@ -151,23 +152,23 @@
         "note": "Mağazamıza gəlməzdən öncə bizə məlumat verməyiniz xahiş olunur."
     },
     "Contact": {
-  "title": "Bizimlə Əlaqə",
-  "subtitle": "Sualınız var? Bizə yazın və ya mağazamıza yaxınlaşın.",
-  "form": {
-    "name": "Adınız",
-    "email": "Email Ünvanınız",
-    "phone": "Əlaqə Nömrəsi",
-    "message": "Mesajınız",
-    "send": "Mesajı Göndər",
-    "sending": "Göndərilir...",
-    "success": "Mesajınız uğurla göndərildi!"
-  },
-  "info": {
-    "address": "Ünvan",
-    "phone": "Telefon",
-    "email": "Email",
-    "workingHours": "İş Saatları",
-    "socials": "Sosial Şəbəkələr"
-  }
-}
+        "title": "Bizimlə Əlaqə",
+        "subtitle": "Sualınız var? Bizə yazın və ya mağazamıza yaxınlaşın.",
+        "form": {
+            "name": "Adınız",
+            "email": "Email Ünvanınız",
+            "phone": "Əlaqə Nömrəsi",
+            "message": "Mesajınız",
+            "send": "Mesajı Göndər",
+            "sending": "Göndərilir...",
+            "success": "Mesajınız uğurla göndərildi!"
+        },
+        "info": {
+            "address": "Ünvan",
+            "phone": "Telefon",
+            "email": "Email",
+            "workingHours": "İş Saatları",
+            "socials": "Sosial Şəbəkələr"
+        }
+    }
 }

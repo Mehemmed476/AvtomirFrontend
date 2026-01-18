@@ -22,7 +22,6 @@ export default function CreateProductPage() {
   const [formState, setFormState] = useState({
     name: "",
     sku: "",
-    brandId: "",  // DEĞİŞTİ: brandName (string) → brandId (number)
     categoryId: "",
     price: "",
     oldPrice: "",
@@ -104,7 +103,6 @@ export default function CreateProductPage() {
       const productData = {
         name: formState.name,
         sku: formState.sku || undefined,
-        brandId: formState.brandId ? parseInt(formState.brandId) : undefined,
         price: parseFloat(formState.price),
         oldPrice: formState.oldPrice ? parseFloat(formState.oldPrice) : undefined,
         shortDescription: formState.shortDescription,  // REQUIRED
@@ -164,12 +162,6 @@ export default function CreateProductPage() {
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-2">SKU / Məhsul Kodu</label>
                 <input value={formState.sku} onChange={(e) => setFormState({...formState, sku: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Məs: BMW-RAD-001" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Brend ID (istəyə görə)</label>
-                <input value={formState.brandId} onChange={(e) => setFormState({...formState, brandId: e.target.value})} type="number" min="1" className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none" placeholder="Brend ID daxil edin" />
-                <p className="text-xs text-slate-500 mt-1">Brend ID-ni backend-dən əldə etməlisiniz</p>
               </div>
 
               <div>

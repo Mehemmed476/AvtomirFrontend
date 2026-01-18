@@ -1,4 +1,5 @@
 import { ApiResponse, Category, Product, ProductParams, PagedResult, ProductDetailDto, ProductListDto } from "@/types";
+import Cookies from "js-cookie";
 
 // Development-də Next.js proxy işlədir, production-da birbaşa backend-ə qoşulur
 const API_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
@@ -6,6 +7,12 @@ const API_URL = typeof window !== 'undefined' && window.location.hostname === 'l
   : "http://45.67.203.108:8080/api";  // Production
 
 const BASE_IMAGE_URL = "http://45.67.203.108:8080";
+
+// Token-i cookie-dən oxu
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return Cookies.get('token') || null;
+}
 
 // Helper funksiya: Şəkil URL-ini düzəlt
 export function getImageUrl(path: string | undefined | null): string {
@@ -120,7 +127,7 @@ export async function getProductBySlug(slug: string): Promise<ApiResponse<Produc
 
 // Məhsulu ID ilə gətirmək (Edit üçün)
 export async function getProductById(id: string | number): Promise<ApiResponse<ProductDetailDto> | null> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+  const token = getToken();
 
   try {
     console.log("🔍 Məhsul yüklənir, ID:", id);
@@ -196,7 +203,7 @@ export async function loginAdmin(data: LoginRequest): Promise<ApiResponse<LoginR
 
 // Şəkil yükləmək (Token ilə)
 export async function uploadImage(file: File): Promise<ApiResponse<string>> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+  const token = getToken();
 
   if (!token) {
     return {
@@ -259,7 +266,7 @@ export async function createProduct(data: {
   isNew: boolean;
   isInStock: boolean;
 }): Promise<ApiResponse<number>> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+  const token = getToken();
 
   if (!token) {
     return {
@@ -333,7 +340,7 @@ export async function updateProduct(id: number, data: {
   isInStock: boolean;
   isActive: boolean;
 }): Promise<ApiResponse<boolean>> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+  const token = getToken();
 
   if (!token) {
     return {
@@ -390,7 +397,7 @@ export async function updateProduct(id: number, data: {
 
 // Məhsulu Silmək
 export async function deleteProduct(id: number): Promise<ApiResponse<null>> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+  const token = getToken();
 
   if (!token) {
     return {
@@ -445,7 +452,7 @@ export async function createCategory(data: {
   parentId?: number | null;
   imageUrl?: string;
 }): Promise<ApiResponse<number>> {  // DEĞİŞTİ: Category → number (backend ID qaytarır)
-  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+  const token = getToken();
 
   if (!token) {
     return {
@@ -499,7 +506,7 @@ export async function updateCategory(id: number, data: {
   parentId?: number | null;
   imageUrl?: string;
 }): Promise<ApiResponse<boolean>> {  // DEĞİŞTİ: Category → boolean
-  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+  const token = getToken();
 
   if (!token) {
     return {
@@ -547,7 +554,7 @@ export async function updateCategory(id: number, data: {
 
 // Kateqoriya silmək
 export async function deleteCategory(id: number): Promise<ApiResponse<null>> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+  const token = getToken();
 
   if (!token) {
     return {

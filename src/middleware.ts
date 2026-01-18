@@ -1,64 +1,39 @@
 import createMiddleware from 'next-intl/middleware';
-import { routing } from './i18n/routing';
 import { NextRequest, NextResponse } from 'next/server';
+import { routing } from './i18n/routing';
 
-// 1. next-intl middleware-i yaradiriq
 const intlMiddleware = createMiddleware(routing);
 
 export default function middleware(request: NextRequest) {
-  const { pathname, origin } = request.nextUrl;
+  const { pathname } = request.nextUrl;
 
-  // CRITICAL: Admin authentication check - RUNS FIRST before anything else
-  // Check if accessing admin routes (but not login page)
+  // --- ADMIN PANEL TƏHLÜKƏSİZLİYİ ---
+  
+  // URL-in '/admin' hissəsini yoxlayırıq
+  // Amma '/admin/login' səhifəsini istisna edirik (yoxsa sonsuz dövrə düşər)
   const isAdminRoute = pathname.includes('/admin');
   const isLoginPage = pathname.includes('/admin/login');
 
-  console.log('🔍 Middleware Auth Check:', {
-    pathname,
-    isAdminRoute,
-    isLoginPage,
-    timestamp: new Date().toISOString()
-  });
-
-  // STRICT ADMIN PROTECTION - Block ALL admin routes without valid token
   if (isAdminRoute && !isLoginPage) {
-    // Get token from cookies
-    const token = request.cookies.get('admin_token')?.value;
+    // 1. Tokeni Cookie-dən oxuyuruq (Adətən 'token' və ya 'accessToken' olur)
+    const token = request.cookies.get('token')?.value;
 
-    console.log('🔐 Admin Token Verification:', {
-      hasToken: !!token,
-      tokenLength: token?.length || 0,
-      allCookies: request.cookies.getAll().map(c => c.name)
-    });
-
-    // NO TOKEN or EMPTY TOKEN = IMMEDIATE REDIRECT
-    if (!token || token.trim() === '') {
-      // Extract locale from path
-      const pathSegments = pathname.split('/').filter(Boolean);
-      const locale = ['az', 'en', 'ru'].includes(pathSegments[0]) ? pathSegments[0] : 'az';
-
-      console.error('🚨 UNAUTHORIZED ACCESS BLOCKED:', {
-        attemptedPath: pathname,
-        reason: 'No valid authentication token'
-      });
-
-      // Build login URL with return path
-      const loginUrl = new URL(`/${locale}/admin/login`, origin);
-      loginUrl.searchParams.set('returnUrl', pathname);
-      loginUrl.searchParams.set('reason', 'unauthorized');
-
-      // REDIRECT IMMEDIATELY - No admin content should be rendered
+    // 2. Əgər token yoxdursa, Login səhifəsinə yönləndiririk
+    if (!token) {
+      // Mövcud dili URL-dən tapırıq (məs: /az/admin -> az)
+      const locale = pathname.split('/')[1] || 'az';
+      
+      // Redirect URL yaradın
+      const loginUrl = new URL(`/${locale}/admin/login`, request.url);
       return NextResponse.redirect(loginUrl);
     }
-
-    console.log('✅ Admin token verified. Access granted to:', pathname);
   }
 
-  // Continue to i18n middleware for other routes
+  // Digər bütün hallarda next-intl öz işini görsün
   return intlMiddleware(request);
 }
 
 export const config = {
-  // Bütün path-ləri tut, amma _next, api və statik fayllara dəymə
+  // Bütün lazımi routeları matcher-ə əlavə edirik
   matcher: ['/', '/(az|en|ru)/:path*']
 };
