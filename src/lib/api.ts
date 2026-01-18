@@ -1,12 +1,13 @@
 import { ApiResponse, Category, Product, ProductParams, PagedResult, ProductDetailDto, ProductListDto } from "@/types";
 import Cookies from "js-cookie";
 
-// Development-də Next.js proxy işlədir, production-da birbaşa backend-ə qoşulur
+// DƏYİŞİKLİK: Production-da artıq birbaşa domenə (Nginx-ə) müraciət edəcək
 const API_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
   ? "/api"  // Local development - Next.js proxy istifadə edir
-  : "http://45.67.203.108:8080/api";  // Production
+  : "https://avtomir.az/api";  // Production
 
-const BASE_IMAGE_URL = "http://45.67.203.108:8080";
+// DƏYİŞİKLİK: Şəkillər üçün əsas URL domen olacaq
+const BASE_IMAGE_URL = "https://avtomir.az";
 
 // Token-i cookie-dən oxu
 function getToken(): string | null {
@@ -32,7 +33,7 @@ export function getImageUrl(path: string | undefined | null): string {
   return `${BASE_IMAGE_URL}/uploads/${path}`;
 }
 
-// --- MÖVCUD FUNKSİYALAR (BUNLARA DƏYMƏDİK) ---
+// --- MÖVCUD FUNKSİYALAR ---
 
 // Shop və Admin panel üçün məhsulların siyahısı (pagination və filterlər ilə)
 export async function getProducts(
@@ -98,7 +99,7 @@ export async function getProducts(
 export async function getCategories(): Promise<ApiResponse<Category[]> | null> {
   try {
     const res = await fetch(`${API_URL}/categories/tree`, { next: { revalidate: 3600 } });
-    
+
     if (!res.ok) return null;
     return await res.json();
   } catch (error) {
@@ -109,14 +110,14 @@ export async function getCategories(): Promise<ApiResponse<Category[]> | null> {
 
 export async function getProductBySlug(slug: string): Promise<ApiResponse<Product> | null> {
   try {
-    const encodedSlug = encodeURIComponent(slug); 
+    const encodedSlug = encodeURIComponent(slug);
     const res = await fetch(`${API_URL}/products/${encodedSlug}`, { next: { revalidate: 60 } });
-    
+
     if (!res.ok) {
-        console.error(`API Error: ${res.status} - ${res.statusText}`);
-        return null;
+      console.error(`API Error: ${res.status} - ${res.statusText}`);
+      return null;
     }
-    
+
     return await res.json();
   } catch (error) {
     console.error("Product Detail Error:", error);
@@ -131,7 +132,7 @@ export async function getProductById(id: string | number): Promise<ApiResponse<P
 
   try {
     console.log("🔍 Məhsul yüklənir, ID:", id);
-    const url = `${API_URL}/products/${id}`;  // Backend: [HttpGet("{id:int}")]
+    const url = `${API_URL}/products/${id}`;
     console.log("🔍 URL:", url);
 
     const headers: HeadersInit = { 'Content-Type': 'application/json' };
@@ -161,24 +162,21 @@ export async function getProductById(id: string | number): Promise<ApiResponse<P
   }
 }
 
-// --- YENİ ƏLAVƏ EDİLƏN HİSSƏ (LOGIN) ---
+// --- LOGIN HİSSƏSİ ---
 
-// Login üçün lazım olan tiplər
 export interface LoginRequest {
   Email: string;
-  Password: string; // Backend-də parol sahəsi necə adlanırsa elə yaz (məs: password və ya pass)
+  Password: string;
 }
 
 export interface LoginResponse {
   token: string;
   expireDate?: string;
-  // Backend-dən qayıdan digər sahələr varsa bura əlavə et
 }
 
 // Login Funksiyası
 export async function loginAdmin(data: LoginRequest): Promise<ApiResponse<LoginResponse>> {
   try {
-    // "/auth/login" hissəsi sənin backend-dəki endpoint-in olmalıdır
     const res = await fetch(`${API_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -187,14 +185,13 @@ export async function loginAdmin(data: LoginRequest): Promise<ApiResponse<LoginR
 
     const json = await res.json();
     return json;
-    
+
   } catch (error) {
     console.error("Login Error:", error);
-    // Xəta halında standart cavab qaytarırıq ki, kod partlamasın
-    return { 
-      success: false, 
-      message: "Serverlə əlaqə yaradıla bilmədi", 
-      data: { token: "" }, 
+    return {
+      success: false,
+      message: "Serverlə əlaqə yaradıla bilmədi",
+      data: { token: "" },
       errors: ["Network Error"],
       statusCode: 500
     };
@@ -243,15 +240,12 @@ export async function uploadImage(file: File): Promise<ApiResponse<string>> {
       const errorText = await res.text();
       console.error(`🔴 Upload xətası: Status=${res.status}, StatusText=${res.statusText}, Error=${errorText}`);
 
-      // Backend-dən gələn xəta mesajını göstər
       let errorMessage = `Şəkil yüklənmədi (${res.status})`;
       if (errorText) {
         try {
-          // JSON formatında ola bilər
           const errorJson = JSON.parse(errorText);
           errorMessage = errorJson.message || errorJson.error || errorText;
         } catch {
-          // Plain text
           errorMessage = errorText;
         }
       }
@@ -287,11 +281,11 @@ export async function createProduct(data: {
   brandId?: number;
   price: number;
   oldPrice?: number;
-  shortDescription: string;  // REQUIRED
+  shortDescription: string;
   description?: string;
   mainImageUrl: string;
-  galleryImageUrls: string[];  // REQUIRED (boş array olabilir)
-  categoryIds: number[];  // REQUIRED (boş array olabilir)
+  galleryImageUrls: string[];
+  categoryIds: number[];
   isNew: boolean;
   isInStock: boolean;
 }): Promise<ApiResponse<number>> {
@@ -350,11 +344,9 @@ export async function createProduct(data: {
   }
 }
 
-
-
 // Məhsulu Yeniləmək (Update)
 export async function updateProduct(id: number, data: {
-  id: number;  // Backend DTO'da Id field'i mütləqdir
+  id: number;
   name: string;
   sku?: string;
   brandId?: number;
@@ -474,13 +466,12 @@ export async function deleteProduct(id: number): Promise<ApiResponse<null>> {
 // CATEGORY CRUD OPERATIONS
 // ============================================
 
-// Kateqoriya yaratmaq
 export async function createCategory(data: {
   name: string;
   description: string;
   parentId?: number | null;
   imageUrl?: string;
-}): Promise<ApiResponse<number>> {  // DEĞİŞTİ: Category → number (backend ID qaytarır)
+}): Promise<ApiResponse<number>> {
   const token = getToken();
 
   if (!token) {
@@ -527,14 +518,13 @@ export async function createCategory(data: {
   }
 }
 
-// Kateqoriya yeniləmək
 export async function updateCategory(id: number, data: {
   id: number;
   name: string;
   description: string;
   parentId?: number | null;
   imageUrl?: string;
-}): Promise<ApiResponse<boolean>> {  // DEĞİŞTİ: Category → boolean
+}): Promise<ApiResponse<boolean>> {
   const token = getToken();
 
   if (!token) {
@@ -581,7 +571,6 @@ export async function updateCategory(id: number, data: {
   }
 }
 
-// Kateqoriya silmək
 export async function deleteCategory(id: number): Promise<ApiResponse<null>> {
   const token = getToken();
 
@@ -627,7 +616,6 @@ export async function deleteCategory(id: number): Promise<ApiResponse<null>> {
   }
 }
 
-// Kateqoriya ID ilə gətirmək (Edit üçün)
 export async function getCategoryById(id: number): Promise<ApiResponse<Category> | null> {
   try {
     const res = await fetch(`${API_URL}/categories/${id}`, { cache: 'no-store' });

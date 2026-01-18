@@ -18,7 +18,8 @@ export default function AdminLoginPage() {
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://45.67.203.108:8080/api/auth/login', {
+      // DƏYİŞİKLİK: IP əvəzinə birbaşa domen yazıldı
+      const res = await fetch('https://avtomir.az/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from 'next-intl/plugin';
- 
+
 const withNextIntl = createNextIntlPlugin();
- 
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
         port: '8080',
         pathname: '/uploads/**',
       },
+      // YENİ: avtomir.az domeni üçün icazə (şəkillər buradan gələndə xəta verməsin)
+      {
+        protocol: 'https',
+        hostname: 'avtomir.az',
+        pathname: '/uploads/**',
+      }
     ],
   },
   async rewrites() {
@@ -23,5 +29,5 @@ const nextConfig: NextConfig = {
     ];
   },
 };
- 
+
 export default withNextIntl(nextConfig);
