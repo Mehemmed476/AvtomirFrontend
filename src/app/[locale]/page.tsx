@@ -2,7 +2,14 @@ import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
 import { getProducts, getImageUrl } from '@/lib/api';
-import { ArrowRight, CheckCircle, Truck, ShieldCheck, Clock, ShoppingCart, Eye, Phone, Users, Box, Star } from 'lucide-react';
+import { ArrowRight, CheckCircle, Truck, ShieldCheck, Clock, ShoppingCart, Eye, Phone, Users, Box, Star, MessageCircle } from 'lucide-react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Avtomir - Bakıda Ən Ucuz Ehtiyat Hissələri və Online Zapçast",
+  description: "Avtomobiliniz üçün lazım olan bütün ehtiyat hissələri və aksesuarlar Avtomir-də. Maşın bazarına getmədən, Opel, Mercedes, Kia və digər modellər üçün orijinal zapçastları online sifariş edin. Sürətli çatdırılma!",
+  keywords: "avtomobil ehtiyat hisseleri, maşın bazarı bakı, zapçast baku, online zapcast satisi, masin aksesuarlari, opel astra zapcast, mercedes ehtiyat hisseleri, bmw zapcast, hyundai ehtiyat hisseleri, kia zapcast, toyota ehtiyat hisseleri, motor yaglari, akumulyatorlar baku, tekerler satisi, masin ucun videoqeydiyyatci, nakladkalar, amortizatorlar, ford ehtiyat hisseleri, chevrolet cruze zapcast, avtomir"
+};
 
 export default async function HomePage() {
   const t = await getTranslations('Home');
@@ -14,13 +21,10 @@ export default async function HomePage() {
 
   const newProducts = newProductsRes?.data || [];
 
-  // Helper: Şəkil URL düzəldən
-  
-
   return (
     <main className="min-h-screen bg-dark-900 text-white">
       
-      {/* 1. HERO SECTION (GİRİŞ - Olduğu kimi qaldı) */}
+      {/* 1. HERO SECTION */}
       <section className="relative h-[600px] w-full overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/80 to-transparent z-10" />
@@ -44,13 +48,28 @@ export default async function HomePage() {
             {t('heroSubtitle')}
           </p>
 
+          {/* BUTONLAR ALANI - GÜNCELLENDİ */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-300">
+            {/* Mağaza Butonu */}
             <Link 
               href="/shop" 
               className="bg-primary hover:bg-red-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg shadow-primary/25 flex items-center gap-2"
             >
               {t('shopNow')} <ArrowRight size={20} />
             </Link>
+
+            {/* Yeni WhatsApp/Telefon Butonu */}
+            <a 
+              href="https://wa.me/994703223066" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-green-500/50 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 flex items-center gap-3"
+            >
+              <div className="bg-green-600/20 p-1.5 rounded-full group-hover:bg-green-600 group-hover:text-white text-green-500 transition-colors">
+                 <Phone size={18} />
+              </div>
+              <span>070 322 30 66</span>
+            </a>
           </div>
         </div>
       </section>
@@ -121,8 +140,8 @@ export default async function HomePage() {
                       {item.brandName || "Avtomir"}
                     </p>
                     <Link href={`/product/${item.slug}`}>
-                       <h3 className="font-bold text-white text-lg leading-tight group-hover:text-primary transition-colors line-clamp-2 h-12">
-                        {item.name}
+                        <h3 className="font-bold text-white text-lg leading-tight group-hover:text-primary transition-colors line-clamp-2 h-12">
+                         {item.name}
                       </h3>
                     </Link>
                   </div>

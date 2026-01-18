@@ -1,9 +1,10 @@
-"use client"; // Bu sətri mütləq əlavə edin (usePathname üçün)
+"use client";
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminAuthGuard from '@/components/auth/AdminAuthGuard';
+import { User } from 'lucide-react';
 
 export default function AdminLayout({
   children,
@@ -11,37 +12,35 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  
-  // Hazırkı səhifənin Login olub-olmadığını yoxlayırıq
   const isLoginPage = pathname.includes('/admin/login');
 
-  // 1. Əgər LOGIN səhifəsidirsə -> Sidebar və AuthGuard-ı YIĞIŞDIRIRIQ
-  // Sadəcə təmiz bir mərkəzləşdirilmiş ekran göstəririk
   if (isLoginPage) {
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-           {children}
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        {children}
+      </div>
     );
   }
 
-  // 2. Digər bütün Admin səhifələri -> Sidebar + AuthGuard AKTİVDİR
   return (
     <AdminAuthGuard>
-      <div className="flex min-h-screen bg-gray-100">
-        {/* Sidebar (Sol Menyu) */}
+      <div className="flex min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         <AdminSidebar />
 
-        {/* Əsas Məzmun Sahəsi */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          
-          {/* Admin Header (Yuxarı hissə) */}
-          <header className="bg-white shadow-sm z-10 p-4 flex justify-between items-center border-b border-gray-200">
-             <div className="text-lg font-bold text-gray-700">Admin Panel</div>
-             <div className="text-sm text-gray-500 font-medium">Avtomir.az</div>
+          {/* Header */}
+          <header className="h-16 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/50 px-6 flex justify-end items-center sticky top-0 z-10">
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium text-white">Admin</p>
+                <p className="text-xs text-slate-500">Administrator</p>
+              </div>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
+                <User size={18} />
+              </div>
+            </div>
           </header>
 
-          {/* Səhifələrin məzmunu bura düşür */}
           <main className="flex-1 overflow-auto p-6">
             {children}
           </main>

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { getCategories, deleteCategory } from "@/lib/api";
 import { Category } from "@/types";
-import { Edit, Trash2, Plus, Folder, FolderOpen } from "lucide-react";
+import { Edit, Trash2, Plus, Folder, FolderOpen, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 
 export default function AdminCategoriesPage() {
@@ -36,41 +36,52 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  // Render Category Rows (Ağac strukturu göstərmək üçün)
   const renderCategoryRow = (category: Category, level: number = 0, parentId: number | null = null, index: number = 0) => {
-    // Alt kateqoriyaların olub-olmadığını yoxlayırıq
     const hasChildren = category.children && category.children.length > 0;
-
-    // Hər səviyyə üçün 24px indent (məsafə) qoyuruq
-    const indent = level * 24;
-
-    // Unique key yaratmaq üçün parent ID, level və index istifadə edirik
+    const indent = level * 28;
     const uniqueKey = `cat-${parentId || 'root'}-${level}-${index}-${category.id}`;
 
     return (
       <div key={uniqueKey}>
-        <div className="flex items-center justify-between px-6 py-4 hover:bg-slate-50/50 transition-colors border-b border-slate-100">
+        <div className="flex items-center justify-between px-6 py-4 hover:bg-slate-800/30 transition-colors border-b border-slate-800/50 group">
           <div className="flex items-center gap-3" style={{ paddingLeft: `${indent}px` }}>
-            {hasChildren ? (
-              <FolderOpen className="text-blue-500" size={20} />
-            ) : (
-              <Folder className="text-slate-400" size={20} />
+            {level > 0 && (
+              <ChevronRight size={14} className="text-slate-600 -ml-4" />
             )}
-            
-            <div className="flex flex-col">
-              <span className="font-semibold text-slate-700">{category.name}</span>
-              {category.parentId && (
-                <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
-                  Alt Kateqoriya
-                </span>
+            <div className={`
+              w-10 h-10 rounded-xl flex items-center justify-center transition-all
+              ${hasChildren
+                ? "bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30"
+                : level > 0
+                  ? "bg-slate-800/50 border border-slate-700/50"
+                  : "bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30"
+              }
+            `}>
+              {hasChildren ? (
+                <FolderOpen className="text-purple-400" size={18} />
+              ) : (
+                <Folder className={level > 0 ? "text-slate-500" : "text-blue-400"} size={18} />
               )}
+            </div>
+
+            <div className="flex flex-col">
+              <span className="font-semibold text-white">{category.name}</span>
+              {level > 0 ? (
+                <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+                  Alt Kateqoriya · Səviyyə {level}
+                </span>
+              ) : hasChildren ? (
+                <span className="text-[10px] text-purple-400 font-medium">
+                  {category.children!.length} alt kateqoriya
+                </span>
+              ) : null}
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <Link
               href={`/admin/categories/edit/${category.id}`}
-              className="p-2 text-slate-400 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50"
+              className="p-2.5 text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all"
               title="Redaktə et"
             >
               <Edit size={18} />
@@ -78,7 +89,7 @@ export default function AdminCategoriesPage() {
             <button
               onClick={() => handleDelete(category.id, category.name)}
               disabled={deleteLoading === category.id}
-              className="p-2 text-slate-400 hover:text-red-600 transition-colors disabled:opacity-50 rounded-lg hover:bg-red-50"
+              className="p-2.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all disabled:opacity-50"
               title="Sil"
             >
               <Trash2 size={18} />
@@ -86,40 +97,58 @@ export default function AdminCategoriesPage() {
           </div>
         </div>
 
-        {/* REKURSİV ÇAĞIRIŞ:
-           Əgər alt kateqoriyalar varsa, funksiya özünü yenidən çağırır (level + 1 ilə)
-        */}
         {hasChildren &&
-          category.children!.map((child, index) => renderCategoryRow(child, level + 1, category.id, index))
+          category.children!.map((child, idx) => renderCategoryRow(child, level + 1, category.id, idx))
         }
       </div>
     );
+  };
+
+  // Count total including nested
+  const countAllCategories = (cats: Category[]): number => {
+    return cats.reduce((acc, cat) => {
+      return acc + 1 + (cat.children ? countAllCategories(cat.children) : 0);
+    }, 0);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Kateqoriyalar</h1>
-          <p className="text-slate-500 text-sm">Ümumi {categories.length} kateqoriya tapıldı.</p>
+          <h1 className="text-2xl font-bold text-white">Kateqoriyalar</h1>
+          <p className="text-slate-400 text-sm mt-1">
+            Ümumi {countAllCategories(categories)} kateqoriya tapıldı
+          </p>
         </div>
         <Link
           href="/admin/categories/create"
-          className="bg-blue-900 hover:bg-blue-800 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg"
+          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-purple-500/25 font-medium"
         >
           <Plus size={20} /> Yeni Kateqoriya
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 overflow-hidden">
         {loading ? (
-          <div className="px-6 py-10 text-center text-slate-400">Yüklənir...</div>
+          <div className="px-6 py-16 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+              <span className="text-slate-400">Yüklənir...</span>
+            </div>
+          </div>
         ) : !categories || categories.length === 0 ? (
-          <div className="px-6 py-10 text-center text-slate-400">Kateqoriya tapılmadı</div>
+          <div className="px-6 py-16 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center">
+                <Folder size={24} className="text-slate-600" />
+              </div>
+              <p className="text-slate-400">Kateqoriya tapılmadı</p>
+            </div>
+          </div>
         ) : (
           <div>
             {categories
-              .filter(c => c.parentId === null || c.parentId === undefined) // Yalnız Ana kateqoriyalardan başla
+              .filter(c => c.parentId === null || c.parentId === undefined)
               .map((category, index) => renderCategoryRow(category, 0, null, index))
             }
           </div>

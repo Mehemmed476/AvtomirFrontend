@@ -6,6 +6,12 @@ import ShopToolbar from '@/components/ShopToolbar';
 import ShopProductList from '@/components/ShopProductList';
 import { Search } from 'lucide-react';
 import { Link } from '@/i18n/routing';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Avtomobil Ehtiyat Hissələri Kataloqu | Orijinal və Dublikat Zapçastlar",
+  description: "Mühərrik, asqı sistemi, təkərlər, yağlar və filtrlər. Hyundai, BMW, Toyota və 50+ marka üçün ehtiyat hissələri. Bakıda ən geniş zapçast seçimi və münasib qiymətlər.",
+};
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -20,7 +26,7 @@ export default async function ShopPage({ searchParams }: Props) {
 
   // 1. URL-dən bütün parametrləri oxuyuruq
   const resolvedParams = await searchParams;
-  
+
   const page = Number(resolvedParams.page) || 1;
   const pageSize = 12;
   const viewMode = (resolvedParams.view as 'grid' | 'list') || 'grid';
@@ -61,10 +67,10 @@ export default async function ShopPage({ searchParams }: Props) {
   return (
     <main className="min-h-screen bg-dark-900 text-white pt-8 pb-20 px-4">
       <div className="container mx-auto">
-        
+
         {/* Layout */}
         <div className="flex flex-col lg:flex-row gap-8">
-          
+
           {/* SIDEBAR */}
           <aside className="w-full lg:w-1/4 hidden lg:block h-fit sticky top-24">
             <ShopSidebar categories={categories} />
@@ -72,7 +78,7 @@ export default async function ShopPage({ searchParams }: Props) {
 
           {/* MƏZMUN */}
           <section className="w-full lg:w-3/4">
-            
+
             {/* Toolbar */}
             <ShopToolbar categories={categories} />
 
@@ -88,10 +94,10 @@ export default async function ShopPage({ searchParams }: Props) {
                 {/* Pagination */}
                 {(metaData.totalPages > 1) && (
                   <div className="mt-12">
-                     <Pagination
-                       currentPage={metaData.currentPage}
-                       totalPages={metaData.totalPages}
-                     />
+                    <Pagination
+                      currentPage={metaData.currentPage}
+                      totalPages={metaData.totalPages}
+                    />
                   </div>
                 )}
               </>
@@ -101,17 +107,17 @@ export default async function ShopPage({ searchParams }: Props) {
                 <div className="bg-dark-700 p-6 rounded-full mb-6">
                   <Search size={40} className="text-gray-500" />
                 </div>
-                
+
                 <h2 className="text-2xl font-bold text-white mb-3">
                   {t('noResultsTitle') || "Təəssüf, heç nə tapılmadı 😕"}
                 </h2>
-                
+
                 <p className="text-gray-400 max-w-md mx-auto mb-8 leading-relaxed">
                   {t('noResultsDesc') || "Axtarış sözünü dəyişdirin və ya filtrləri təmizləyib yenidən yoxlayın."}
                 </p>
 
-                <Link 
-                  href="/shop" 
+                <Link
+                  href="/shop"
                   className="inline-flex items-center justify-center px-8 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl transition-all font-medium shadow-lg shadow-primary/25"
                 >
                   {t('clearFilters') || "Filtrləri Təmizlə"}

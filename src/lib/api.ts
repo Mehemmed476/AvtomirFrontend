@@ -205,6 +205,13 @@ export async function loginAdmin(data: LoginRequest): Promise<ApiResponse<LoginR
 export async function uploadImage(file: File): Promise<ApiResponse<string>> {
   const token = getToken();
 
+  console.log("📤 Image upload başladı:", {
+    fileName: file.name,
+    fileSize: file.size,
+    fileType: file.type,
+    hasToken: !!token
+  });
+
   if (!token) {
     return {
       success: false,
@@ -219,7 +226,10 @@ export async function uploadImage(file: File): Promise<ApiResponse<string>> {
   formData.append('file', file);
 
   try {
-    const res = await fetch(`${API_URL}/images/upload`, {
+    const uploadUrl = `${API_URL}/images/upload`;
+    console.log("📤 Upload URL:", uploadUrl);
+
+    const res = await fetch(uploadUrl, {
       method: "POST",
       headers: {
         'Authorization': `Bearer ${token}`
@@ -227,23 +237,42 @@ export async function uploadImage(file: File): Promise<ApiResponse<string>> {
       body: formData,
     });
 
+    console.log("📤 Upload response status:", res.status, res.statusText);
+
     if (!res.ok) {
       const errorText = await res.text();
+      console.error(`🔴 Upload xətası: Status=${res.status}, StatusText=${res.statusText}, Error=${errorText}`);
+
+      // Backend-dən gələn xəta mesajını göstər
+      let errorMessage = `Şəkil yüklənmədi (${res.status})`;
+      if (errorText) {
+        try {
+          // JSON formatında ola bilər
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || errorJson.error || errorText;
+        } catch {
+          // Plain text
+          errorMessage = errorText;
+        }
+      }
+
       return {
         success: false,
-        message: `Şəkil yüklənmədi: ${res.status} ${res.statusText}`,
+        message: errorMessage,
         data: "",
         statusCode: res.status,
         errors: [errorText || "Upload failed"]
       };
     }
 
-    return await res.json();
+    const result = await res.json();
+    console.log("✅ Upload uğurlu:", result);
+    return result;
   } catch (error) {
     console.error("Upload Error:", error);
     return {
       success: false,
-      message: "Şəkil yükləmə xətası",
+      message: "Şəkil yükləmə xətası: " + (error as Error).message,
       data: "",
       statusCode: 500,
       errors: [(error as Error).message]

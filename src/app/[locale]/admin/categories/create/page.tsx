@@ -77,85 +77,88 @@ export default function CreateCategoryPage() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-800">Yeni Kateqoriya</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Yeni Kateqoriya</h1>
+          <p className="text-slate-400 text-sm mt-1">Yeni kateqoriya məlumatlarını daxil edin</p>
+        </div>
         <button
           type="button"
           onClick={() => router.back()}
-          className="text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors"
+          className="text-slate-400 hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-800/50 transition-all"
         >
-          <X size={20} /> Ləğv et
+          <X size={18} /> Ləğv et
         </button>
       </div>
 
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+        <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+      <form onSubmit={handleSubmit} className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 overflow-hidden">
         <div className="p-8 space-y-6">
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">
-              Kateqoriya Adı <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Kateqoriya Adı <span className="text-red-400">*</span>
             </label>
             <input
               value={formState.name}
               onChange={(e) => setFormState({ ...formState, name: e.target.value })}
               required
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+              className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/50 outline-none transition-all"
               placeholder="Məs: Mühərrik Hissələri"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Təsvir (İstəyə görə)
             </label>
             <textarea
               value={formState.description}
               onChange={(e) => setFormState({ ...formState, description: e.target.value })}
               rows={3}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+              className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/50 outline-none transition-all resize-none"
               placeholder="Kateqoriya haqqında qısa məlumat"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Ana Kateqoriya (İstəyə görə)
             </label>
             <select
               value={formState.parentId}
               onChange={(e) => setFormState({ ...formState, parentId: e.target.value })}
               disabled={catLoading}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50"
+              className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/50 outline-none disabled:opacity-50 transition-all"
             >
-              <option value="">Əsas Kateqoriya (Parent yoxdur)</option>
+              <option value="" className="bg-slate-800">Əsas Kateqoriya (Parent yoxdur)</option>
               {categories.map(c => (
-                <option key={c.id} value={c.id}>
+                <option key={c.id} value={c.id} className="bg-slate-800">
                   {c.name}
                 </option>
               ))}
             </select>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 mt-2">
               Əgər alt kateqoriya yaratmaq istəyirsinizsə, ana kateqoriyanı seçin.
             </p>
           </div>
         </div>
 
-        <div className="bg-slate-50 px-8 py-5 border-t border-slate-200 flex justify-end gap-3">
+        <div className="bg-slate-800/30 px-8 py-5 border-t border-slate-800/50 flex justify-end gap-3">
           <button
             type="button"
             onClick={() => router.back()}
-            className="px-6 py-3 text-slate-600 hover:text-slate-800 font-medium transition-colors"
+            className="px-6 py-3 text-slate-400 hover:text-white font-medium transition-colors rounded-xl hover:bg-slate-700/50"
           >
             Ləğv et
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-900 hover:bg-blue-800 text-white font-bold px-8 py-3 rounded-xl flex items-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold px-8 py-3 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/25"
           >
             {loading ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
             {loading ? "Yadda saxlanılır..." : "Kateqoriya Yadda Saxla"}

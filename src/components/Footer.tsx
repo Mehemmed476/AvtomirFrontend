@@ -13,7 +13,7 @@ export default function Footer() {
   if (pathname.includes("/admin")) return null;
 
   // --- STATİK DATALAR (Hardcoded) ---
-  const phone = "055 322 30 66";
+  const phone = "070 322 30 66";
   const email = "jamal_damirov@mail.ru";
   const address = "Atatürk prospekti 65a, Bakı (Gənclik m., Ayna Sultanova heykəli istiqaməti)";
   const mapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3038.7676694864385!2d49.84650637656976!3d40.41702895713467!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4030878995903235%3A0xe9a9292a99c2a9ee!2sAvtomir.az!5e0!3m2!1sen!2saz!4v1705500000000!5m2!1sen!2saz";
@@ -21,7 +21,7 @@ export default function Footer() {
   const socialLinks = [
     { icon: Facebook, href: "https://www.facebook.com/Avtomirazerbaijan#" },
     { icon: Instagram, href: "https://www.instagram.com/avtomir.az_0553223066/" },
-    { icon: MessageCircle, href: "https://wa.me/994553223066" },
+    { icon: MessageCircle, href: "https://wa.me/994703223066" },
   ];
 
   return (

@@ -248,8 +248,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
   if (pageLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="animate-spin text-blue-600" size={48} />
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+          <span className="text-slate-400">Yüklənir...</span>
+        </div>
       </div>
     );
   }
@@ -257,35 +260,38 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-800">Məhsulu Redaktə Et</h1>
-        <button type="button" onClick={() => router.back()} className="text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors">
-          <X size={20} /> Ləğv et
+        <div>
+          <h1 className="text-2xl font-bold text-white">Məhsulu Redaktə Et</h1>
+          <p className="text-slate-400 text-sm mt-1">Məhsul məlumatlarını yeniləyin</p>
+        </div>
+        <button type="button" onClick={() => router.back()} className="text-slate-400 hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-800/50 transition-all">
+          <X size={18} /> Ləğv et
         </button>
       </div>
 
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+        <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+      <form onSubmit={handleSubmit} className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 overflow-hidden">
         <div className="p-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Məhsul Adı <span className="text-red-500">*</span></label>
-                <input value={formState.name} onChange={(e) => setFormState({...formState, name: e.target.value})} required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Məs: BMW M5 Radiator" />
+                <label className="block text-sm font-medium text-slate-300 mb-2">Məhsul Adı <span className="text-red-400">*</span></label>
+                <input value={formState.name} onChange={(e) => setFormState({...formState, name: e.target.value})} required className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="Məs: BMW M5 Radiator" />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">SKU / Məhsul Kodu</label>
-                <input value={formState.sku} onChange={(e) => setFormState({...formState, sku: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Məs: BMW-RAD-001" />
+                <label className="block text-sm font-medium text-slate-300 mb-2">SKU / Məhsul Kodu</label>
+                <input value={formState.sku} onChange={(e) => setFormState({...formState, sku: e.target.value})} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="Məs: BMW-RAD-001" />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Kateqoriyalar <span className="text-red-500">*</span></label>
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 max-h-48 overflow-y-auto space-y-1">
+                <label className="block text-sm font-medium text-slate-300 mb-2">Kateqoriyalar <span className="text-red-400">*</span></label>
+                <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 max-h-48 overflow-y-auto space-y-1 scrollbar-hide">
                   {catLoading ? (
                     <p className="text-sm text-slate-500">Yüklənir...</p>
                   ) : categories.length === 0 ? (
@@ -294,16 +300,16 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     flattenCategories(categories).map((c, index) => (
                       <label
                         key={`edit-cat-${c.id}-${index}`}
-                        className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded transition-colors"
+                        className="flex items-center gap-2 cursor-pointer hover:bg-slate-700/30 p-2 rounded-lg transition-colors"
                         style={{ paddingLeft: `${8 + c.level * 16}px` }}
                       >
                         <input
                           type="checkbox"
                           checked={formState.categoryIds.includes(c.id)}
                           onChange={() => handleCategoryToggle(c.id)}
-                          className="w-4 h-4 text-blue-600 rounded"
+                          className="w-4 h-4 text-blue-500 bg-slate-700 border-slate-600 rounded focus:ring-blue-500/30"
                         />
-                        <span className="text-sm font-medium text-slate-700">
+                        <span className="text-sm font-medium text-slate-300">
                           {c.level > 0 && "└─ "}{c.name}
                         </span>
                       </label>
@@ -314,27 +320,27 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Qiymət (₼) <span className="text-red-500">*</span></label>
-                  <input value={formState.price} onChange={(e) => setFormState({...formState, price: e.target.value})} type="number" step="0.01" min="0" required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none" />
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Qiymət (₼) <span className="text-red-400">*</span></label>
+                  <input value={formState.price} onChange={(e) => setFormState({...formState, price: e.target.value})} type="number" step="0.01" min="0" required className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Köhnə Qiymət (₼)</label>
-                  <input value={formState.oldPrice} onChange={(e) => setFormState({...formState, oldPrice: e.target.value})} type="number" step="0.01" min="0" className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none" />
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Köhnə Qiymət (₼)</label>
+                  <input value={formState.oldPrice} onChange={(e) => setFormState({...formState, oldPrice: e.target.value})} type="number" step="0.01" min="0" className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" />
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 flex-wrap">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input checked={formState.isNew} onChange={(e) => setFormState({...formState, isNew: e.target.checked})} type="checkbox" className="w-4 h-4 text-blue-600 rounded" />
-                  <span className="text-sm font-medium text-slate-700">Yeni Məhsul</span>
+              <div className="flex items-center gap-3 flex-wrap p-4 bg-slate-800/30 rounded-xl border border-slate-700/30">
+                <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg hover:bg-slate-700/30 transition-colors">
+                  <input checked={formState.isNew} onChange={(e) => setFormState({...formState, isNew: e.target.checked})} type="checkbox" className="w-4 h-4 text-blue-500 bg-slate-700 border-slate-600 rounded" />
+                  <span className="text-sm font-medium text-white">Yeni</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input checked={formState.isInStock} onChange={(e) => setFormState({...formState, isInStock: e.target.checked})} type="checkbox" className="w-4 h-4 text-green-600 rounded" />
-                  <span className="text-sm font-medium text-slate-700">Stokda var</span>
+                <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg hover:bg-slate-700/30 transition-colors">
+                  <input checked={formState.isInStock} onChange={(e) => setFormState({...formState, isInStock: e.target.checked})} type="checkbox" className="w-4 h-4 text-emerald-500 bg-slate-700 border-slate-600 rounded" />
+                  <span className="text-sm font-medium text-white">Stokda</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input checked={formState.isActive} onChange={(e) => setFormState({...formState, isActive: e.target.checked})} type="checkbox" className="w-4 h-4 text-purple-600 rounded" />
-                  <span className="text-sm font-medium text-slate-700">Aktiv</span>
+                <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg hover:bg-slate-700/30 transition-colors">
+                  <input checked={formState.isActive} onChange={(e) => setFormState({...formState, isActive: e.target.checked})} type="checkbox" className="w-4 h-4 text-purple-500 bg-slate-700 border-slate-600 rounded" />
+                  <span className="text-sm font-medium text-white">Aktiv</span>
                 </label>
               </div>
             </div>
@@ -342,10 +348,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             <div className="space-y-4">
               {/* Ana Şəkil */}
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Ana Şəkil <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Ana Şəkil <span className="text-red-400">*</span></label>
                 {mainImagePreview || existingMainImageUrl ? (
                   <div className="relative group">
-                    <div className="w-full h-48 rounded-xl overflow-hidden border-2 border-blue-400 relative bg-slate-100">
+                    <div className="w-full h-48 rounded-xl overflow-hidden border-2 border-blue-500/50 relative bg-slate-800/50">
                       <Image src={mainImagePreview || getImageUrl(existingMainImageUrl)} alt="Ana şəkil" fill className="object-contain p-2" />
                     </div>
                     <button
@@ -355,26 +361,26 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     >
                       <X size={16} />
                     </button>
-                    <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">Ana Şəkil</span>
+                    <span className="absolute top-2 left-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs px-2 py-1 rounded-lg font-medium">Ana Şəkil</span>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center hover:border-blue-400 transition-all cursor-pointer relative">
+                  <div className="border-2 border-dashed border-slate-700/50 rounded-xl p-6 text-center hover:border-blue-500/50 hover:bg-blue-500/5 transition-all cursor-pointer relative group">
                     <input
                       type="file"
                       accept="image/*"
                       className="absolute inset-0 opacity-0 cursor-pointer"
                       onChange={handleMainImageChange}
                     />
-                    <Upload className="mx-auto text-slate-400 mb-2" size={32} />
-                    <p className="text-sm text-slate-500">Ana şəkli seçin</p>
+                    <Upload className="mx-auto text-slate-500 group-hover:text-blue-400 mb-2 transition-colors" size={32} />
+                    <p className="text-sm text-slate-500 group-hover:text-slate-400 transition-colors">Ana şəkli seçin</p>
                   </div>
                 )}
               </div>
 
               {/* Galeri Şəkilləri */}
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Galeri Şəkilləri (İstəyə görə)</label>
-                <div className="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-green-400 transition-all cursor-pointer relative">
+                <label className="block text-sm font-medium text-slate-300 mb-2">Galeri Şəkilləri (İstəyə görə)</label>
+                <div className="border-2 border-dashed border-slate-700/50 rounded-xl p-4 text-center hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all cursor-pointer relative group">
                   <input
                     type="file"
                     multiple
@@ -382,8 +388,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     className="absolute inset-0 opacity-0 cursor-pointer"
                     onChange={handleGalleryImagesChange}
                   />
-                  <Upload className="mx-auto text-slate-400 mb-1" size={24} />
-                  <p className="text-xs text-slate-500">
+                  <Upload className="mx-auto text-slate-500 group-hover:text-emerald-400 mb-1 transition-colors" size={24} />
+                  <p className="text-xs text-slate-500 group-hover:text-slate-400 transition-colors">
                     {galleryImages.length > 0 ? `${galleryImages.length} yeni şəkil seçildi` : "Yeni şəkillər əlavə edin"}
                   </p>
                 </div>
@@ -392,11 +398,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               {/* Mövcud Galeri Şəkilləri */}
               {existingGalleryUrls.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-slate-600 mb-2">Mövcud Galeri Şəkilləri:</p>
+                  <p className="text-xs font-semibold text-slate-400 mb-2">Mövcud Galeri Şəkilləri:</p>
                   <div className="grid grid-cols-3 gap-2">
                     {existingGalleryUrls.map((url, idx) => (
                       <div key={`existing-img-${idx}-${url.substring(url.length - 10)}`} className="relative group">
-                        <div className="w-full h-20 rounded-lg overflow-hidden border-2 border-slate-300 relative">
+                        <div className="w-full h-20 rounded-lg overflow-hidden border-2 border-slate-600/50 relative">
                           <Image src={getImageUrl(url)} alt={`Mövcud ${idx + 1}`} fill className="object-cover" />
                         </div>
                         <button
@@ -415,11 +421,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               {/* Yeni Galeri Şəkilləri Önizləmələri */}
               {galleryPreviews.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-green-600 mb-2">Yeni Galeri Şəkilləri:</p>
+                  <p className="text-xs font-semibold text-emerald-400 mb-2">Yeni Galeri Şəkilləri:</p>
                   <div className="grid grid-cols-3 gap-2">
                     {galleryPreviews.map((preview, idx) => (
                       <div key={`new-img-${idx}-${preview.substring(preview.length - 10)}`} className="relative group">
-                        <div className="w-full h-20 rounded-lg overflow-hidden border-2 border-green-400 relative">
+                        <div className="w-full h-20 rounded-lg overflow-hidden border-2 border-emerald-500/50 relative">
                           <Image src={preview} alt={`Yeni ${idx + 1}`} fill className="object-cover" />
                         </div>
                         <button
@@ -429,7 +435,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                         >
                           <X size={14} />
                         </button>
-                        <span className="absolute bottom-1 left-1 bg-green-500 text-white text-xs px-1 rounded">Yeni</span>
+                        <span className="absolute bottom-1 left-1 bg-emerald-500 text-white text-[10px] px-1.5 rounded font-medium">Yeni</span>
                       </div>
                     ))}
                   </div>
@@ -439,23 +445,23 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">
-              Qısa Təsvir <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Qısa Təsvir <span className="text-red-400">*</span>
             </label>
-            <textarea value={formState.shortDescription} onChange={(e) => setFormState({...formState, shortDescription: e.target.value})} required rows={2} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="Məhsul haqqında qısa məlumat" />
+            <textarea value={formState.shortDescription} onChange={(e) => setFormState({...formState, shortDescription: e.target.value})} required rows={2} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all resize-none" placeholder="Məhsul haqqında qısa məlumat" />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">Təsvir (Description)</label>
-            <textarea value={formState.description} onChange={(e) => setFormState({...formState, description: e.target.value})} rows={5} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="Məhsul haqqında ətraflı məlumat" />
+            <label className="block text-sm font-medium text-slate-300 mb-2">Təsvir (Description)</label>
+            <textarea value={formState.description} onChange={(e) => setFormState({...formState, description: e.target.value})} rows={5} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all resize-none" placeholder="Məhsul haqqında ətraflı məlumat" />
           </div>
         </div>
 
-        <div className="bg-slate-50 px-8 py-5 border-t border-slate-200 flex justify-end gap-3">
-          <button type="button" onClick={() => router.back()} className="px-6 py-3 text-slate-600 hover:text-slate-800 font-medium transition-colors">
+        <div className="bg-slate-800/30 px-8 py-5 border-t border-slate-800/50 flex justify-end gap-3">
+          <button type="button" onClick={() => router.back()} className="px-6 py-3 text-slate-400 hover:text-white font-medium transition-colors rounded-xl hover:bg-slate-700/50">
             Ləğv et
           </button>
-          <button type="submit" disabled={loading} className="bg-blue-900 hover:bg-blue-800 text-white font-bold px-8 py-3 rounded-xl flex items-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed">
+          <button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold px-8 py-3 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25">
             {loading ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
             {loading ? "Yenilənir..." : "Dəyişiklikləri Yadda Saxla"}
           </button>
