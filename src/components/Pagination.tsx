@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Props {
   currentPage: number;
@@ -11,6 +12,7 @@ interface Props {
 export default function Pagination({ currentPage, totalPages }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations('Common');
 
   // URL-i dəyişən funksiya (Səhifə yenilənmir, sadəcə URL dəyişir)
   const changePage = (page: number) => {
@@ -28,7 +30,7 @@ export default function Pagination({ currentPage, totalPages }: Props) {
   return (
     <div className="flex items-center justify-center gap-2 mt-10">
       {/* Geri Düyməsi */}
-      <button 
+      <button
         onClick={() => changePage(currentPage - 1)}
         disabled={currentPage === 1}
         className="p-2 bg-dark-800 rounded-lg hover:bg-primary disabled:opacity-50 disabled:hover:bg-dark-800 transition-colors text-white"
@@ -38,11 +40,11 @@ export default function Pagination({ currentPage, totalPages }: Props) {
 
       {/* Səhifə Nömrəsi */}
       <span className="px-4 py-2 bg-dark-800 rounded-lg text-white font-mono border border-dark-700">
-        {currentPage} / {totalPages}
+        {t('page')} {currentPage} / {totalPages}
       </span>
 
       {/* İrəli Düyməsi */}
-      <button 
+      <button
         onClick={() => changePage(currentPage + 1)}
         disabled={currentPage === totalPages}
         className="p-2 bg-dark-800 rounded-lg hover:bg-primary disabled:opacity-50 disabled:hover:bg-dark-800 transition-colors text-white"

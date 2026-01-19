@@ -46,7 +46,7 @@ export async function getProducts(
     maxPrice?: number;
     sort?: string;
   }
-): Promise<ApiResponse<ProductListDto[]> | null> {
+): Promise<ApiResponse<PagedResult<ProductListDto>> | null> {
   try {
     const params = new URLSearchParams({
       page: page.toString(),

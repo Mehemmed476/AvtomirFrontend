@@ -54,7 +54,7 @@ export default function AdminProductsPage() {
     setLoading(true);
     const res = await getProducts(page, pageSize, { search: search || undefined });
     if (res?.success && res.data) {
-      setProducts(res.data);
+      setProducts(res.data.items);
     }
     setLoading(false);
   }, [page, search]);

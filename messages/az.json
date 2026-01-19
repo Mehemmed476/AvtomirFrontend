@@ -11,7 +11,7 @@
         "logout": "Çıxış"
     },
     "Home": {
-        "heroBadge": "Azərbaycanın #1 Avto hissələri",
+        "heroBadge": "Avto Tüninq və Aksesuarlar",
         "heroTitle": "Avtomobilin Üçün",
         "heroHighlight": "Mükəmməl Seçim",
         "heroSubtitle": "Minlərlə orijinal ehtiyat hissəsi, sürətli çatdırılma və rəsmi zəmanət. Maşınınızın ehtiyacı olan hər şey bir ünvanda.",
@@ -83,7 +83,8 @@
     },
     "Common": {
         "loading": "Yüklənir...",
-        "error": "Xəta baş verdi"
+        "error": "Xəta baş verdi",
+        "page": "Səhifə"
     },
     "Footer": {
         "description": "Avtomobiliniz üçün ən keyfiyyətli və orijinal ehtiyat hissələrinin tək ünvanı. Bizim üçün müştəri məmnuniyyəti hər şeydən önəmlidir.",
@@ -119,9 +120,9 @@
     },
     "About": {
         "title": "Haqqımızda",
-        "subtitle": "2002-ci ildən bəri avtomobil aksessuarları dünyasında etibarlı tərəfdaşınız.",
+        "subtitle": "2000-ci ildən bəri avtomobil aksessuarları dünyasında etibarlı tərəfdaşınız.",
         "historyTitle": "Bizim Tariximiz",
-        "historyText": "AVTOMİR.AZ 2002-ci ildən Azərbaycanda fəaliyyət göstərir. Biz avtomobil aksessuarlarının satışını təşkil edirik. Əsas məqsədimiz müştərilərimizi keyfiyyətli məhsul və peşəkar xidmətlə təmin etməkdir.",
+        "historyText": "AVTOMİR.AZ 2000-ci ildən Azərbaycanda fəaliyyət göstərir. Biz avtomobil aksessuarlarının satışını təşkil edirik. Əsas məqsədimiz müştərilərimizi keyfiyyətli məhsul və peşəkar xidmətlə təmin etməkdir.",
         "servicesTitle": "Niyə Biz?",
         "services": {
             "delivery": {
@@ -134,7 +135,7 @@
             },
             "hours": {
                 "title": "İş Rejimi",
-                "desc": "Hər gün saat 10:00-dan 22:00-dək"
+                "desc": "Hər gün saat 09:00-dan 20:30-dək"
             }
         },
         "deliveryTerms": {
@@ -148,7 +149,7 @@
         },
         "locationTitle": "Ünvanımız",
         "addressName": "AVTOMİR №1",
-        "addressText": "Atatürk prospekti 65a. Gənclik metrosundan üzü Ayna Sultanova heykəli istiqamətinə hərəkət edərkən Dərnəgül körpüsünün altından keçən kimi işıqforu düz keçib 150 metrdən sonra soldakı yeni tikilinin altı.",
+        "addressText": "Atatürk prospekti 235. Gənclik metrosundan üzü Ayna Sultanova heykəli istiqamətinə hərəkət edərkən Dərnəgül körpüsünün altından keçən kimi işıqforu düz keçib 150 metrdən sonra soldakı yeni tikilinin altı.",
         "note": "Mağazamıza gəlməzdən öncə bizə məlumat verməyiniz xahiş olunur."
     },
     "Contact": {

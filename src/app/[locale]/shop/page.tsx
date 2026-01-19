@@ -52,16 +52,14 @@ export default async function ShopPage({ searchParams }: Props) {
 
   const [productsRes, categoriesRes] = await Promise.all([productsData, categoriesData]);
 
-  const products = productsRes?.data || [];
+  const pagedResult = productsRes?.data;
+  const products = pagedResult?.items || [];
   const categories = categoriesRes?.data || [];
 
-  const totalCount = (productsRes as any)?.totalCount || products.length;
-  const totalPagesFromBackend = (productsRes as any)?.totalPages;
-
   const metaData = {
-    currentPage: page,
-    totalPages: totalPagesFromBackend || (products.length < pageSize ? page : page + 1),
-    totalCount: totalCount
+    currentPage: pagedResult?.pageNumber || page,
+    totalPages: pagedResult?.totalPages || 1,
+    totalCount: pagedResult?.totalCount || 0
   };
 
   return (

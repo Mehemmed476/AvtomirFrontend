@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     let productUrls: MetadataRoute.Sitemap = [];
     try {
         const productsRes = await getProducts(1, 1000);
-        const products = productsRes?.data || [];
+        const products = productsRes?.data?.items || [];
 
         productUrls = products.map((product) => ({
             url: `${baseUrl}/product/${product.slug}`,

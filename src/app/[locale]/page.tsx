@@ -19,19 +19,19 @@ export default async function HomePage() {
     sort: 'newest'
   });
 
-  const newProducts = newProductsRes?.data || [];
+  const newProducts = newProductsRes?.data?.items || [];
 
   return (
     <main className="min-h-screen bg-dark-900 text-white">
-      
+
       {/* 1. HERO SECTION */}
       <section className="relative h-[600px] w-full overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/80 to-transparent z-10" />
           <div className="absolute inset-0 bg-black/50 z-10" />
-          <img 
-            src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1920&auto=format&fit=crop" 
-            alt="Hero Background" 
+          <img
+            src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1920&auto=format&fit=crop"
+            alt="Hero Background"
             className="w-full h-full object-cover"
           />
         </div>
@@ -51,22 +51,22 @@ export default async function HomePage() {
           {/* BUTONLAR ALANI - GÜNCELLENDİ */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-300">
             {/* Mağaza Butonu */}
-            <Link 
-              href="/shop" 
+            <Link
+              href="/shop"
               className="bg-primary hover:bg-red-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg shadow-primary/25 flex items-center gap-2"
             >
               {t('shopNow')} <ArrowRight size={20} />
             </Link>
 
             {/* Yeni WhatsApp/Telefon Butonu */}
-            <a 
-              href="https://wa.me/994703223066" 
+            <a
+              href="https://wa.me/994703223066"
               target="_blank"
               rel="noopener noreferrer"
               className="group bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-green-500/50 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 flex items-center gap-3"
             >
               <div className="bg-green-600/20 p-1.5 rounded-full group-hover:bg-green-600 group-hover:text-white text-green-500 transition-colors">
-                 <Phone size={18} />
+                <Phone size={18} />
               </div>
               <span>070 322 30 66</span>
             </a>
@@ -115,18 +115,18 @@ export default async function HomePage() {
             {newProducts.map((item) => (
               <div key={item.id} className="group bg-dark-800 rounded-2xl p-4 border border-dark-700 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5 relative flex flex-col">
                 <div className="absolute top-4 left-4 z-10">
-                   <span className="bg-green-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg uppercase tracking-wider">
-                      YENİ
-                   </span>
+                  <span className="bg-green-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg uppercase tracking-wider">
+                    YENİ
+                  </span>
                 </div>
                 <div className="aspect-[4/3] bg-white rounded-xl mb-4 relative overflow-hidden flex items-center justify-center p-4">
-                  <img 
-                    src={getImageUrl(item.mainImageUrl)} 
+                  <img
+                    src={getImageUrl(item.mainImageUrl)}
                     alt={item.name}
                     className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                    <Link 
+                    <Link
                       href={`/product/${item.slug}`}
                       className="bg-white text-black flex items-center gap-2 px-6 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300 shadow-xl"
                     >
@@ -140,8 +140,8 @@ export default async function HomePage() {
                       {item.brandName || "Avtomir"}
                     </p>
                     <Link href={`/product/${item.slug}`}>
-                        <h3 className="font-bold text-white text-lg leading-tight group-hover:text-primary transition-colors line-clamp-2 h-12">
-                         {item.name}
+                      <h3 className="font-bold text-white text-lg leading-tight group-hover:text-primary transition-colors line-clamp-2 h-12">
+                        {item.name}
                       </h3>
                     </Link>
                   </div>

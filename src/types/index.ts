@@ -54,7 +54,7 @@ export interface ProductDetailDto {
 // Backend-dəki "PagedList" wrapper-i
 export interface PagedResult<T> {
   items: T[];
-  currentPage: number;
+  pageNumber: number;
   totalPages: number;
   pageSize: number;
   totalCount: number;

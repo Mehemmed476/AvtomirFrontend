@@ -11,7 +11,7 @@
         "logout": "Logout"
     },
     "Home": {
-        "heroBadge": "#1 Auto Parts in Azerbaijan",
+        "heroBadge": "Auto Tuning and Accessories",
         "heroTitle": "For Your Car",
         "heroHighlight": "Perfect Choice",
         "heroSubtitle": "Thousands of original spare parts, fast delivery, and official warranty. Everything your car needs in one place.",
@@ -83,7 +83,8 @@
     },
     "Common": {
         "loading": "Loading...",
-        "error": "An error occurred"
+        "error": "An error occurred",
+        "page": "Page"
     },
     "Footer": {
         "description": "The only address for high-quality and original spare parts for your car. Customer satisfaction is our top priority.",
@@ -119,9 +120,9 @@
     },
     "About": {
         "title": "About Us",
-        "subtitle": "Your reliable partner in car accessories since 2002.",
+        "subtitle": "Your reliable partner in car accessories since 2000.",
         "historyTitle": "Our History",
-        "historyText": "AVTOMİR.AZ has been operating in Azerbaijan since 2002. We specialize in the sale of high-quality car accessories. Our main goal is to provide our customers with original products and professional service.",
+        "historyText": "AVTOMİR.AZ has been operating in Azerbaijan since 2000. We specialize in the sale of high-quality car accessories. Our main goal is to provide our customers with original products and professional service.",
         "servicesTitle": "Why Choose Us?",
         "services": {
             "delivery": {
@@ -134,12 +135,12 @@
             },
             "hours": {
                 "title": "Working Hours",
-                "desc": "Every day 10:00 - 22:00"
+                "desc": "Every day 09:00 - 20:30"
             }
         },
         "locationTitle": "Our Location",
         "addressName": "AVTOMİR №1",
-        "addressText": "Ataturk Avenue 65a. Passing under the Darnagul bridge while moving from Ganjlik metro station towards Ayna Sultanova statue, pass the traffic light straight, located under the new building on the left after 150 meters.",
+        "addressText": "Ataturk Avenue 235. Passing under the Darnagul bridge while moving from Ganjlik metro station towards Ayna Sultanova statue, pass the traffic light straight, located under the new building on the left after 150 meters.",
         "note": "Please inform us before visiting our store.",
         "deliveryTerms": {
             "title": "Delivery & Payment Terms",
