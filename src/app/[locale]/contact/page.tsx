@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
-import { MapPin, Phone, Mail, Clock, Instagram, Facebook, MessageCircle } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, Youtube } from 'lucide-react';
+import { TikTokIcon } from '@/components/icons/TikTokIcon';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -14,10 +15,12 @@ export default async function ContactPage() {
   const phone = "070 322 30 66";
   const email = "jamal_damirov@mail.ru";
   const address = "Atatürk prospekti 235, Bakı (Gənclik m., Ayna Sultanova heykəli istiqaməti)";
-  const workHours = "10:00 - 20:30";
+  const workHours = "09:00 - 20:30";
   const instagramUrl = "https://www.instagram.com/avtomir.az_0703223066/";
   const facebookUrl = "https://www.facebook.com/Avtomirazerbaijan#";
   const whatsappUrl = "https://wa.me/994703223066";
+  const youtubeUrl = "https://www.youtube.com/@avtomiraz814";
+  const tiktokUrl = "https://www.tiktok.com/@avtomir.az_official?_r=1&_t=ZS-93CJzjgNN6f";
   const mapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3037.661364195639!2d49.84344557574591!3d40.41635205566267!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4030878995103235%3A0x5d1a2965c2a9ee!2sAvtomir.az!5e0!3m2!1str!2saz!4v1768807606342!5m2!1str!2saz";
 
   return (
@@ -104,6 +107,12 @@ export default async function ContactPage() {
               </a>
               <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-dark-900 px-6 py-3 rounded-xl border border-dark-700 hover:border-primary hover:text-primary transition-all">
                 <Facebook size={20} /> <span className="font-medium">Facebook</span>
+              </a>
+              <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-dark-900 px-6 py-3 rounded-xl border border-dark-700 hover:border-red-600 hover:text-red-600 transition-all">
+                <Youtube size={20} /> <span className="font-medium">YouTube</span>
+              </a>
+              <a href={tiktokUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-dark-900 px-6 py-3 rounded-xl border border-dark-700 hover:border-gray-500 hover:text-white transition-all">
+                <TikTokIcon size={20} /> <span className="font-medium">TikTok</span>
               </a>
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-dark-900 px-6 py-3 rounded-xl border border-dark-700 hover:border-green-500 hover:text-green-500 transition-all">
                 <MessageCircle size={20} /> <span className="font-medium">WhatsApp</span>

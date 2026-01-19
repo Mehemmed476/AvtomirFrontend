@@ -3,7 +3,8 @@ import {
   Clock, Truck, Wrench, Calendar,
   CreditCard, Banknote, Car, CheckCircle
 } from 'lucide-react';
-import { Instagram, Facebook } from 'lucide-react';
+import { Instagram, Facebook, Youtube } from 'lucide-react';
+import { TikTokIcon } from '@/components/icons/TikTokIcon';
 
 export default async function AboutPage() {
   const t = await getTranslations('About');
@@ -40,6 +41,12 @@ export default async function AboutPage() {
               </a>
               <a href="https://www.facebook.com/Avtomirazerbaijan#" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-dark-800 px-4 py-2 rounded-lg hover:bg-primary transition-colors">
                 <Facebook size={20} /> Facebook
+              </a>
+              <a href="https://www.youtube.com/@avtomiraz814" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-dark-800 px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                <Youtube size={20} /> YouTube
+              </a>
+              <a href="https://www.tiktok.com/@avtomir.az_official?_r=1&_t=ZS-93CJzjgNN6f" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-dark-800 px-4 py-2 rounded-lg hover:bg-black transition-colors hover:text-white border border-transparent hover:border-gray-700">
+                <TikTokIcon size={20} /> TikTok
               </a>
             </div>
           </div>

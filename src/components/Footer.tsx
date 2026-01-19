@@ -2,7 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/routing';
-import { Facebook, Instagram, MessageCircle, MapPin, Phone, Mail, ArrowRight } from 'lucide-react';
+import { Facebook, Instagram, MessageCircle, MapPin, Phone, Mail, ArrowRight, Youtube } from 'lucide-react';
+import { TikTokIcon } from './icons/TikTokIcon';
 
 export default function Footer() {
   const t = useTranslations('Footer');
@@ -21,6 +22,8 @@ export default function Footer() {
   const socialLinks = [
     { icon: Facebook, href: "https://www.facebook.com/Avtomirazerbaijan" },
     { icon: Instagram, href: "https://www.instagram.com/avtomir.az_0553223066/" },
+    { icon: Youtube, href: "https://www.youtube.com/@avtomiraz814" },
+    { icon: TikTokIcon, href: "https://www.tiktok.com/@avtomir.az_official?_r=1&_t=ZS-93CJzjgNN6f" },
     { icon: MessageCircle, href: "https://wa.me/994703223066" },
   ];
 

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { getCategories, createProduct, uploadImage } from "@/lib/api";
 import { Category } from "@/types";
 import { useRouter } from "@/i18n/routing";
-import { Save, X, Upload, Loader2 } from "lucide-react";
+import { Save, X, Upload, Loader2, Search } from "lucide-react";
 import Image from "next/image";
 
 export default function CreateProductPage() {
@@ -17,12 +17,13 @@ export default function CreateProductPage() {
   const [galleryImages, setGalleryImages] = useState<File[]>([]);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
   const [error, setError] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
 
   // Form state-ləri
   const [formState, setFormState] = useState({
     name: "",
     sku: "",
-    categoryId: "",
+    categoryIds: [] as number[],
     price: "",
     oldPrice: "",
     shortDescription: "",
@@ -36,6 +37,27 @@ export default function CreateProductPage() {
       setCatLoading(false);
     });
   }, []);
+
+  // Nested kateqoriyaları flat listə çevirmək
+  const flattenCategories = (cats: Category[], level: number = 0): Array<Category & { level: number }> => {
+    let result: Array<Category & { level: number }> = [];
+    for (const cat of cats) {
+      result.push({ ...cat, level });
+      if (cat.children && cat.children.length > 0) {
+        result = result.concat(flattenCategories(cat.children, level + 1));
+      }
+    }
+    return result;
+  };
+
+  const handleCategoryToggle = (categoryId: number) => {
+    setFormState(prev => ({
+      ...prev,
+      categoryIds: prev.categoryIds.includes(categoryId)
+        ? prev.categoryIds.filter(id => id !== categoryId)
+        : [...prev.categoryIds, categoryId]
+    }));
+  };
 
   const handleMainImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -109,7 +131,7 @@ export default function CreateProductPage() {
         description: formState.description || undefined,
         mainImageUrl: mainImageUpload.data,
         galleryImageUrls: galleryUrls,  // DEĞİŞTİ: Her zaman array
-        categoryIds: formState.categoryId ? [parseInt(formState.categoryId)] : [],  // DEĞİŞTİ: Array
+        categoryIds: formState.categoryIds,  // DEĞİŞTİ: Artıq array-dir
         isNew: formState.isNew,
         isInStock: true
       };
@@ -159,36 +181,95 @@ export default function CreateProductPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Məhsul Adı <span className="text-red-400">*</span></label>
-                <input value={formState.name} onChange={(e) => setFormState({...formState, name: e.target.value})} required className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="Məs: BMW M5 Radiator" />
+                <input value={formState.name} onChange={(e) => setFormState({ ...formState, name: e.target.value })} required className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="Məs: BMW M5 Radiator" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">SKU / Məhsul Kodu</label>
-                <input value={formState.sku} onChange={(e) => setFormState({...formState, sku: e.target.value})} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="Məs: BMW-RAD-001" />
+                <input value={formState.sku} onChange={(e) => setFormState({ ...formState, sku: e.target.value })} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="Məs: BMW-RAD-001" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Kateqoriya <span className="text-red-400">*</span></label>
-                <select value={formState.categoryId} onChange={(e) => setFormState({...formState, categoryId: e.target.value})} required disabled={catLoading} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none disabled:opacity-50 transition-all">
-                  <option value="" className="bg-slate-800">Kateqoriya seçin</option>
-                  {categories.map(c => <option key={c.id} value={c.id} className="bg-slate-800">{c.name}</option>)}
-                </select>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Kateqoriyalar <span className="text-red-400">*</span></label>
+
+                {/* Selected Categories Chips */}
+                {categories.length > 0 && formState.categoryIds.length > 0 && (
+                  <div className="mb-3 flex flex-wrap gap-2 p-3 bg-slate-800/30 rounded-xl border border-slate-700/30">
+                    <span className="text-xs font-medium text-slate-400 w-full mb-1">Seçilmişlər:</span>
+                    {flattenCategories(categories)
+                      .filter(c => formState.categoryIds.includes(c.id))
+                      .map(cat => (
+                        <div key={`selected-chip-${cat.id}`} className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-lg text-xs flex items-center gap-1.5 transition-all hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 group">
+                          <span>{cat.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCategoryToggle(cat.id)}
+                            className="text-blue-400/50 group-hover:text-red-400"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                )}
+
+                {/* Category Search */}
+                <div className="relative mb-2">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search size={14} className="text-slate-500" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Kateqoriya axtar..."
+                    value={categorySearch}
+                    onChange={(e) => setCategorySearch(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+                  />
+                </div>
+
+                <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 max-h-48 overflow-y-auto space-y-1 scrollbar-hide">
+                  {catLoading ? (
+                    <p className="text-sm text-slate-500">Yüklənir...</p>
+                  ) : categories.length === 0 ? (
+                    <p className="text-sm text-slate-500">Kateqoriya tapılmadı</p>
+                  ) : (
+                    flattenCategories(categories)
+                      .filter(c => c.name.toLowerCase().includes(categorySearch.toLowerCase()))
+                      .map((c, index) => (
+                        <label
+                          key={`create-cat-${c.id}-${index}`}
+                          className="flex items-center gap-2 cursor-pointer hover:bg-slate-700/30 p-2 rounded-lg transition-colors"
+                          style={{ paddingLeft: categorySearch ? '8px' : `${8 + c.level * 16}px` }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formState.categoryIds.includes(c.id)}
+                            onChange={() => handleCategoryToggle(c.id)}
+                            className="w-4 h-4 text-blue-500 bg-slate-700 border-slate-600 rounded focus:ring-blue-500/30"
+                          />
+                          <span className="text-sm font-medium text-slate-300">
+                            {(!categorySearch && c.level > 0) && "└─ "}{c.name}
+                          </span>
+                        </label>
+                      ))
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">Qiymət (₼) <span className="text-red-400">*</span></label>
-                  <input value={formState.price} onChange={(e) => setFormState({...formState, price: e.target.value})} type="number" step="0.01" min="0" required className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" />
+                  <input value={formState.price} onChange={(e) => setFormState({ ...formState, price: e.target.value })} type="number" step="0.01" min="0" required className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">Köhnə Qiymət (₼)</label>
-                  <input value={formState.oldPrice} onChange={(e) => setFormState({...formState, oldPrice: e.target.value})} type="number" step="0.01" min="0" className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" />
+                  <input value={formState.oldPrice} onChange={(e) => setFormState({ ...formState, oldPrice: e.target.value })} type="number" step="0.01" min="0" className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" />
                 </div>
               </div>
 
               <div className="flex items-center gap-4 p-4 bg-slate-800/30 rounded-xl border border-slate-700/30">
                 <label className="flex items-center gap-3 cursor-pointer">
-                  <input checked={formState.isNew} onChange={(e) => setFormState({...formState, isNew: e.target.checked})} type="checkbox" className="w-5 h-5 text-blue-500 bg-slate-700 border-slate-600 rounded focus:ring-blue-500/30" />
+                  <input checked={formState.isNew} onChange={(e) => setFormState({ ...formState, isNew: e.target.checked })} type="checkbox" className="w-5 h-5 text-blue-500 bg-slate-700 border-slate-600 rounded focus:ring-blue-500/30" />
                   <span className="text-sm font-medium text-white">Yeni Məhsul</span>
                 </label>
               </div>
@@ -271,12 +352,12 @@ export default function CreateProductPage() {
             <label className="block text-sm font-medium text-slate-300 mb-2">
               Qısa Təsvir <span className="text-red-400">*</span>
             </label>
-            <textarea value={formState.shortDescription} onChange={(e) => setFormState({...formState, shortDescription: e.target.value})} required rows={2} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all resize-none" placeholder="Məhsul haqqında qısa məlumat" />
+            <textarea value={formState.shortDescription} onChange={(e) => setFormState({ ...formState, shortDescription: e.target.value })} required rows={2} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all resize-none" placeholder="Məhsul haqqında qısa məlumat" />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Təsvir (Description)</label>
-            <textarea value={formState.description} onChange={(e) => setFormState({...formState, description: e.target.value})} rows={5} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all resize-none" placeholder="Məhsul haqqında ətraflı məlumat" />
+            <textarea value={formState.description} onChange={(e) => setFormState({ ...formState, description: e.target.value })} rows={5} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all resize-none" placeholder="Məhsul haqqında ətraflı məlumat" />
           </div>
         </div>
 

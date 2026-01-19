@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import { getCategories, getProductById, updateProduct, uploadImage, getImageUrl } from "@/lib/api";
 import { Category, ProductDetailDto } from "@/types";
 import { useRouter } from "@/i18n/routing";
-import { Save, X, Upload, Loader2 } from "lucide-react";
+import { Save, X, Upload, Loader2, Search } from "lucide-react";
 import Image from "next/image";
 
 export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,6 +15,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [pageLoading, setPageLoading] = useState(true);
   const [catLoading, setCatLoading] = useState(true);
   const [error, setError] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
 
   // Şəkil state-ləri
   const [mainImage, setMainImage] = useState<File | null>(null);
@@ -62,7 +63,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
         // Backend categoryIds və ya categories array'i dönə bilər
         const categoryIds = p.categoryIds ||
-                          (p.categories ? p.categories.map((c: any) => c.id) : []);
+          (p.categories ? p.categories.map((c: any) => c.id) : []);
 
         setFormState({
           name: p.name || "",
@@ -281,39 +282,77 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Məhsul Adı <span className="text-red-400">*</span></label>
-                <input value={formState.name} onChange={(e) => setFormState({...formState, name: e.target.value})} required className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="Məs: BMW M5 Radiator" />
+                <input value={formState.name} onChange={(e) => setFormState({ ...formState, name: e.target.value })} required className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="Məs: BMW M5 Radiator" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">SKU / Məhsul Kodu</label>
-                <input value={formState.sku} onChange={(e) => setFormState({...formState, sku: e.target.value})} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="Məs: BMW-RAD-001" />
+                <input value={formState.sku} onChange={(e) => setFormState({ ...formState, sku: e.target.value })} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="Məs: BMW-RAD-001" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Kateqoriyalar <span className="text-red-400">*</span></label>
+
+                {/* Selected Categories Chips */}
+                {categories.length > 0 && formState.categoryIds.length > 0 && (
+                  <div className="mb-3 flex flex-wrap gap-2 p-3 bg-slate-800/30 rounded-xl border border-slate-700/30">
+                    <span className="text-xs font-medium text-slate-400 w-full mb-1">Seçilmişlər:</span>
+                    {flattenCategories(categories)
+                      .filter(c => formState.categoryIds.includes(c.id))
+                      .map(cat => (
+                        <div key={`selected-chip-${cat.id}`} className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-lg text-xs flex items-center gap-1.5 transition-all hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 group">
+                          <span>{cat.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCategoryToggle(cat.id)}
+                            className="text-blue-400/50 group-hover:text-red-400"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                )}
+
+                {/* Category Search */}
+                <div className="relative mb-2">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search size={14} className="text-slate-500" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Kateqoriya axtar..."
+                    value={categorySearch}
+                    onChange={(e) => setCategorySearch(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+                  />
+                </div>
+
                 <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 max-h-48 overflow-y-auto space-y-1 scrollbar-hide">
                   {catLoading ? (
                     <p className="text-sm text-slate-500">Yüklənir...</p>
                   ) : categories.length === 0 ? (
                     <p className="text-sm text-slate-500">Kateqoriya tapılmadı</p>
                   ) : (
-                    flattenCategories(categories).map((c, index) => (
-                      <label
-                        key={`edit-cat-${c.id}-${index}`}
-                        className="flex items-center gap-2 cursor-pointer hover:bg-slate-700/30 p-2 rounded-lg transition-colors"
-                        style={{ paddingLeft: `${8 + c.level * 16}px` }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={formState.categoryIds.includes(c.id)}
-                          onChange={() => handleCategoryToggle(c.id)}
-                          className="w-4 h-4 text-blue-500 bg-slate-700 border-slate-600 rounded focus:ring-blue-500/30"
-                        />
-                        <span className="text-sm font-medium text-slate-300">
-                          {c.level > 0 && "└─ "}{c.name}
-                        </span>
-                      </label>
-                    ))
+                    flattenCategories(categories)
+                      .filter(c => c.name.toLowerCase().includes(categorySearch.toLowerCase()))
+                      .map((c, index) => (
+                        <label
+                          key={`edit-cat-${c.id}-${index}`}
+                          className="flex items-center gap-2 cursor-pointer hover:bg-slate-700/30 p-2 rounded-lg transition-colors"
+                          style={{ paddingLeft: categorySearch ? '8px' : `${8 + c.level * 16}px` }} // Search vaxtı indentation-ı ləğv et
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formState.categoryIds.includes(c.id)}
+                            onChange={() => handleCategoryToggle(c.id)}
+                            className="w-4 h-4 text-blue-500 bg-slate-700 border-slate-600 rounded focus:ring-blue-500/30"
+                          />
+                          <span className="text-sm font-medium text-slate-300">
+                            {(!categorySearch && c.level > 0) && "└─ "}{c.name}
+                          </span>
+                        </label>
+                      ))
                   )}
                 </div>
               </div>
@@ -321,25 +360,25 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">Qiymət (₼) <span className="text-red-400">*</span></label>
-                  <input value={formState.price} onChange={(e) => setFormState({...formState, price: e.target.value})} type="number" step="0.01" min="0" required className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" />
+                  <input value={formState.price} onChange={(e) => setFormState({ ...formState, price: e.target.value })} type="number" step="0.01" min="0" required className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">Köhnə Qiymət (₼)</label>
-                  <input value={formState.oldPrice} onChange={(e) => setFormState({...formState, oldPrice: e.target.value})} type="number" step="0.01" min="0" className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" />
+                  <input value={formState.oldPrice} onChange={(e) => setFormState({ ...formState, oldPrice: e.target.value })} type="number" step="0.01" min="0" className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" />
                 </div>
               </div>
 
               <div className="flex items-center gap-3 flex-wrap p-4 bg-slate-800/30 rounded-xl border border-slate-700/30">
                 <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg hover:bg-slate-700/30 transition-colors">
-                  <input checked={formState.isNew} onChange={(e) => setFormState({...formState, isNew: e.target.checked})} type="checkbox" className="w-4 h-4 text-blue-500 bg-slate-700 border-slate-600 rounded" />
+                  <input checked={formState.isNew} onChange={(e) => setFormState({ ...formState, isNew: e.target.checked })} type="checkbox" className="w-4 h-4 text-blue-500 bg-slate-700 border-slate-600 rounded" />
                   <span className="text-sm font-medium text-white">Yeni</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg hover:bg-slate-700/30 transition-colors">
-                  <input checked={formState.isInStock} onChange={(e) => setFormState({...formState, isInStock: e.target.checked})} type="checkbox" className="w-4 h-4 text-emerald-500 bg-slate-700 border-slate-600 rounded" />
+                  <input checked={formState.isInStock} onChange={(e) => setFormState({ ...formState, isInStock: e.target.checked })} type="checkbox" className="w-4 h-4 text-emerald-500 bg-slate-700 border-slate-600 rounded" />
                   <span className="text-sm font-medium text-white">Stokda</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg hover:bg-slate-700/30 transition-colors">
-                  <input checked={formState.isActive} onChange={(e) => setFormState({...formState, isActive: e.target.checked})} type="checkbox" className="w-4 h-4 text-purple-500 bg-slate-700 border-slate-600 rounded" />
+                  <input checked={formState.isActive} onChange={(e) => setFormState({ ...formState, isActive: e.target.checked })} type="checkbox" className="w-4 h-4 text-purple-500 bg-slate-700 border-slate-600 rounded" />
                   <span className="text-sm font-medium text-white">Aktiv</span>
                 </label>
               </div>
@@ -448,12 +487,12 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             <label className="block text-sm font-medium text-slate-300 mb-2">
               Qısa Təsvir <span className="text-red-400">*</span>
             </label>
-            <textarea value={formState.shortDescription} onChange={(e) => setFormState({...formState, shortDescription: e.target.value})} required rows={2} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all resize-none" placeholder="Məhsul haqqında qısa məlumat" />
+            <textarea value={formState.shortDescription} onChange={(e) => setFormState({ ...formState, shortDescription: e.target.value })} required rows={2} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all resize-none" placeholder="Məhsul haqqında qısa məlumat" />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Təsvir (Description)</label>
-            <textarea value={formState.description} onChange={(e) => setFormState({...formState, description: e.target.value})} rows={5} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all resize-none" placeholder="Məhsul haqqında ətraflı məlumat" />
+            <textarea value={formState.description} onChange={(e) => setFormState({ ...formState, description: e.target.value })} rows={5} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all resize-none" placeholder="Məhsul haqqında ətraflı məlumat" />
           </div>
         </div>
 

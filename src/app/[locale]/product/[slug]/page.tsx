@@ -26,10 +26,10 @@ export default async function ProductDetailPage({ params }: Props) {
   return (
     <main className="min-h-screen bg-dark-900 text-white pt-8 pb-20">
       <div className="container mx-auto px-4">
-        
+
         {/* BREADCRUMB (Naviqasiya Yolu) */}
         <nav className="text-sm text-gray-500 mb-8 flex items-center gap-2">
-          <Link href="/" className="hover:text-primary transition-colors">Ana Səhifə</Link> 
+          <Link href="/" className="hover:text-primary transition-colors">Ana Səhifə</Link>
           <span>/</span>
           <Link href="/shop" className="hover:text-primary transition-colors">Mağaza</Link>
           <span>/</span>
@@ -38,29 +38,29 @@ export default async function ProductDetailPage({ params }: Props) {
 
         {/* MƏHSUL BLOKU */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          
+
           {/* SOL TƏRƏF: Qalereya */}
           <div>
-             <ProductGallery 
-               mainImage={product.mainImageUrl} 
-               images={product.imageUrls || []} //
-             />
+            <ProductGallery
+              mainImage={product.mainImageUrl}
+              images={product.imageUrls || []} //
+            />
           </div>
 
           {/* SAĞ TƏRƏF: Məlumatlar */}
           <div className="space-y-8">
-            
+
             {/* Başlıq və Qiymət */}
             <div className="space-y-4 pb-8 border-b border-dark-700">
               <h1 className="text-3xl md:text-4xl font-bold leading-tight">{product.name}</h1>
-              
+
               <div className="flex items-center gap-4">
                 {product.brandName && (
-                   <span className="bg-dark-800 text-gray-300 px-3 py-1 rounded text-sm font-medium border border-dark-600">
-                     Brend: <span className="text-white">{product.brandName}</span>
-                   </span>
+                  <span className="bg-dark-800 text-gray-300 px-3 py-1 rounded text-sm font-medium border border-dark-600">
+                    Brend: <span className="text-white">{product.brandName}</span>
+                  </span>
                 )}
-                
+
                 {/* SKU */}
                 <span className="text-gray-500 text-sm flex items-center gap-1">
                   <Package size={14} /> Kod: {product.sku || "N/A"}
@@ -73,33 +73,33 @@ export default async function ProductDetailPage({ params }: Props) {
                   <span className="text-xl text-gray-500 line-through mb-1 decoration-red-500">{product.oldPrice} ₼</span>
                 )}
                 {product.discountRate > 0 && (
-                   <span className="bg-red-600 text-white px-2 py-1 rounded text-xs font-bold mb-2">
-                     -{product.discountRate}% ENDİRİM
-                   </span>
+                  <span className="bg-red-600 text-white px-2 py-1 rounded text-xs font-bold mb-2">
+                    -{product.discountRate}% ENDİRİM
+                  </span>
                 )}
               </div>
             </div>
 
             {/* Stok və Qısa Məlumat */}
             <div className="space-y-4">
-               {product.isInStock ? (
-                 <div className="flex items-center gap-2 text-green-400 font-medium bg-green-400/10 w-fit px-4 py-2 rounded-lg border border-green-400/20">
-                   <Check size={18} /> Stokda var
-                 </div>
-               ) : (
-                 <div className="flex items-center gap-2 text-red-400 font-medium bg-red-400/10 w-fit px-4 py-2 rounded-lg border border-red-400/20">
-                   <Info size={18} /> Hazırda bitib
-                 </div>
-               )}
+              {product.isInStock ? (
+                <div className="flex items-center gap-2 text-green-400 font-medium bg-green-400/10 w-fit px-4 py-2 rounded-lg border border-green-400/20">
+                  <Check size={18} /> Stokda var
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-red-400 font-medium bg-red-400/10 w-fit px-4 py-2 rounded-lg border border-red-400/20">
+                  <Info size={18} /> Hazırda bitib
+                </div>
+              )}
 
-               <p className="text-gray-400 leading-relaxed">
-                 {product.shortDescription || "Bu məhsul üçün qısa məlumat yoxdur."}
-               </p>
+              <p className="text-gray-400 leading-relaxed">
+                {product.shortDescription || "Bu məhsul üçün qısa məlumat yoxdur."}
+              </p>
             </div>
 
             {/* DÜYMƏLƏR */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <button 
+              <button
                 className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!product.isInStock}
               >
@@ -108,14 +108,14 @@ export default async function ProductDetailPage({ params }: Props) {
 
               {/* WhatsApp Link */}
               {product.whatsAppLink && (
-                 <a 
-                   href={product.whatsAppLink} 
-                   target="994703223066" 
-                   rel="noopener noreferrer"
-                   className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-600/20"
-                 >
-                   <MessageCircle size={20} /> WhatsApp-la Al
-                 </a>
+                <a
+                  href={product.whatsAppLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-600/20"
+                >
+                  <MessageCircle size={20} /> WhatsApp-la Al
+                </a>
               )}
             </div>
 
@@ -139,10 +139,10 @@ export default async function ProductDetailPage({ params }: Props) {
               Məhsul Haqqında
             </button>
           </div>
-          
+
           <div className="bg-dark-800 rounded-2xl p-8 border border-dark-700 text-gray-300 leading-relaxed space-y-4">
-             {/* HTML kontent varsa onu render etmək olar, hələlik sadə text */}
-             <div dangerouslySetInnerHTML={{ __html: product.description || "<p>Ətraflı məlumat yoxdur.</p>" }} />
+            {/* HTML kontent varsa onu render etmək olar, hələlik sadə text */}
+            <div dangerouslySetInnerHTML={{ __html: product.description || "<p>Ətraflı məlumat yoxdur.</p>" }} />
           </div>
         </div>
 

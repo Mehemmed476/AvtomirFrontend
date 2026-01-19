@@ -3,13 +3,14 @@
 import { useEffect, useState, useCallback } from "react";
 import { getCategories, deleteCategory } from "@/lib/api";
 import { Category } from "@/types";
-import { Edit, Trash2, Plus, Folder, FolderOpen, ChevronRight } from "lucide-react";
+import { Edit, Trash2, Plus, Folder, FolderOpen, ChevronRight, Search } from "lucide-react";
 import { Link } from "@/i18n/routing";
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
@@ -34,6 +35,18 @@ export default function AdminCategoriesPage() {
     } else {
       alert("Xəta baş verdi: " + (res?.message || "Kateqoriya silinmədi"));
     }
+  };
+
+  // Nested kateqoriyaları flat listə çevirmək (Axtarış üçün)
+  const flattenCategories = (cats: Category[], level: number = 0): Array<Category & { level: number }> => {
+    let result: Array<Category & { level: number }> = [];
+    for (const cat of cats) {
+      result.push({ ...cat, level });
+      if (cat.children && cat.children.length > 0) {
+        result = result.concat(flattenCategories(cat.children, level + 1));
+      }
+    }
+    return result;
   };
 
   const renderCategoryRow = (category: Category, level: number = 0, parentId: number | null = null, index: number = 0) => {
@@ -128,6 +141,21 @@ export default function AdminCategoriesPage() {
         </Link>
       </div>
 
+      <div className="flex items-center gap-4 bg-slate-900/50 backdrop-blur-sm p-4 rounded-2xl border border-slate-800/50">
+        <div className="relative flex-1">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search size={18} className="text-slate-500" />
+          </div>
+          <input
+            type="text"
+            placeholder="Kateqoriya axtar..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+          />
+        </div>
+      </div>
+
       <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 overflow-hidden">
         {loading ? (
           <div className="px-6 py-16 text-center">
@@ -147,10 +175,25 @@ export default function AdminCategoriesPage() {
           </div>
         ) : (
           <div>
-            {categories
-              .filter(c => c.parentId === null || c.parentId === undefined)
-              .map((category, index) => renderCategoryRow(category, 0, null, index))
-            }
+            {searchTerm ? (
+              // Search Mode: Flat List
+              flattenCategories(categories)
+                .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                .length > 0 ? (
+                flattenCategories(categories)
+                  .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map((category, index) => renderCategoryRow(category, 0, null, index))
+              ) : (
+                <div className="px-6 py-12 text-center text-slate-400">
+                  Heç bir nəticə tapılmadı
+                </div>
+              )
+            ) : (
+              // Normal Mode: Tree View
+              categories
+                .filter(c => c.parentId === null || c.parentId === undefined)
+                .map((category, index) => renderCategoryRow(category, 0, null, index))
+            )}
           </div>
         )}
       </div>
