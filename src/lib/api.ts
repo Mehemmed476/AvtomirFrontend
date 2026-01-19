@@ -659,7 +659,21 @@ export async function getShortVideos(): Promise<ApiResponse<ShortVideoGetDto[]> 
   try {
     const res = await fetch(`${API_URL}/shortvideo`, { cache: 'no-store' });
     if (!res.ok) return null;
-    return await res.json();
+
+    const result = await res.json();
+
+    // Backend returns array directly, wrap it in ApiResponse format
+    if (Array.isArray(result)) {
+      return {
+        success: true,
+        data: result,
+        message: "OK",
+        statusCode: 200
+      };
+    }
+
+    // If it's already in ApiResponse format
+    return result;
   } catch (error) {
     console.error("ShortVideo Fetch Error:", error);
     return null;
@@ -671,7 +685,20 @@ export async function getShortVideoById(id: number): Promise<ApiResponse<ShortVi
   try {
     const res = await fetch(`${API_URL}/shortvideo/${id}`, { cache: 'no-store' });
     if (!res.ok) return null;
-    return await res.json();
+
+    const result = await res.json();
+
+    // Backend might return object directly, wrap it in ApiResponse format
+    if (result && result.id !== undefined && result.success === undefined) {
+      return {
+        success: true,
+        data: result,
+        message: "OK",
+        statusCode: 200
+      };
+    }
+
+    return result;
   } catch (error) {
     console.error("ShortVideo Fetch Error:", error);
     return null;
@@ -713,7 +740,20 @@ export async function createShortVideo(data: ShortVideoPostDto): Promise<ApiResp
       };
     }
 
-    return await res.json();
+    // Backend returns 201 with { message: "..." } - handle this case
+    const result = await res.json();
+
+    // If backend doesn't return success field, check status code
+    if (result.success === undefined) {
+      return {
+        success: true,
+        message: result.message || "Video yaradıldı",
+        data: result.data || 0,
+        statusCode: res.status
+      };
+    }
+
+    return result;
   } catch (error) {
     console.error("Create ShortVideo Error:", error);
     return {
@@ -761,7 +801,28 @@ export async function updateShortVideo(id: number, data: ShortVideoPutDto): Prom
       };
     }
 
-    return await res.json();
+    // Backend returns 204 No Content or simple response - handle this case
+    const text = await res.text();
+    if (!text) {
+      return {
+        success: true,
+        message: "Video yeniləndi",
+        data: true,
+        statusCode: res.status
+      };
+    }
+
+    const result = JSON.parse(text);
+    if (result.success === undefined) {
+      return {
+        success: true,
+        message: result.message || "Video yeniləndi",
+        data: true,
+        statusCode: res.status
+      };
+    }
+
+    return result;
   } catch (error) {
     console.error("Update ShortVideo Error:", error);
     return {
@@ -807,7 +868,28 @@ export async function deleteShortVideo(id: number): Promise<ApiResponse<null>> {
       };
     }
 
-    return await res.json();
+    // Backend returns 204 No Content - handle this case
+    const text = await res.text();
+    if (!text) {
+      return {
+        success: true,
+        message: "Video silindi",
+        data: null,
+        statusCode: res.status
+      };
+    }
+
+    const result = JSON.parse(text);
+    if (result.success === undefined) {
+      return {
+        success: true,
+        message: result.message || "Video silindi",
+        data: null,
+        statusCode: res.status
+      };
+    }
+
+    return result;
   } catch (error) {
     console.error("Delete ShortVideo Error:", error);
     return {

@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { createShortVideo } from "@/lib/api";
 import { ArrowLeft, Play, Loader2 } from "lucide-react";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 
 export default function CreateShortPage() {
   const router = useRouter();

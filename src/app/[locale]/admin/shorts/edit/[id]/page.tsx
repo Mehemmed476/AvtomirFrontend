@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { getShortVideoById, updateShortVideo } from "@/lib/api";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 
 export default function EditShortPage() {
   const router = useRouter();
