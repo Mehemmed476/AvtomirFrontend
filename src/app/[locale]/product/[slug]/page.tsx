@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import ProductGallery from '@/components/ProductGallery';
-import { Check, ShieldCheck, Truck, MessageCircle, ShoppingCart, Info, Package, PlayCircle } from 'lucide-react';
+import { Check, ShieldCheck, Truck, MessageCircle, ShoppingCart, Info, Package, PlayCircle, Youtube, ExternalLink } from 'lucide-react';
 
 interface Props {
   params: Promise<{ slug: string; locale: string }>;
@@ -112,20 +112,34 @@ export default async function ProductDetailPage({ params }: Props) {
               </p>
 
               {product.videoLink && (
-                <div className="pt-4">
+                <div className="pt-6">
                   <a
                     href={product.videoLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative flex w-full sm:w-auto items-center justify-center gap-4 overflow-hidden rounded-xl bg-gradient-to-r from-red-700 to-red-500 px-8 py-4 text-white shadow-lg shadow-red-900/30 transition-all duration-300 hover:scale-[1.03] hover:shadow-red-600/40 active:scale-95"
+                    className="group relative w-full flex items-center justify-between gap-4 bg-dark-800/50 border border-dark-600 hover:border-red-500/50 rounded-2xl p-2 pr-5 transition-all duration-300 hover:bg-dark-800 hover:shadow-lg hover:shadow-red-900/20"
                   >
-                    <div className="absolute inset-0 bg-white/10 opacity-0 transition-opacity group-hover:opacity-100" />
-
-                    <div className="relative rounded-full bg-white/20 p-2 transition-colors group-hover:bg-white/30">
-                      <PlayCircle size={24} className="fill-white text-white" />
+                    {/* Left Icon Box with Pulse Effect */}
+                    <div className="relative h-14 w-14 flex flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-red-600 to-red-800 shadow-md group-hover:scale-105 transition-transform duration-300">
+                      <div className="absolute inset-0 rounded-xl bg-red-600 animate-ping opacity-20 group-hover:opacity-40" />
+                      <div className="absolute inset-0 rounded-xl bg-red-600 opacity-20 animate-pulse" />
+                      <Youtube size={28} className="text-white relative z-10 fill-white/20" />
                     </div>
 
-                    <span className="text-lg font-bold tracking-wide">Videonu İzlə</span>
+                    {/* Text Area */}
+                    <div className="flex-1 flex flex-col justify-center">
+                      <span className="text-white font-bold text-base group-hover:text-red-400 transition-colors">
+                        Video İcmalı İzlə
+                      </span>
+                      <span className="text-gray-400 text-xs group-hover:text-gray-300 transition-colors">
+                        Məhsulun videosuna YouTube-da baxın
+                      </span>
+                    </div>
+
+                    {/* Arrow/Action */}
+                    <div className="h-8 w-8 flex items-center justify-center rounded-full bg-dark-700 text-gray-300 group-hover:bg-red-500/10 group-hover:text-red-400 transition-all">
+                      <ExternalLink size={16} />
+                    </div>
                   </a>
                 </div>
               )}
