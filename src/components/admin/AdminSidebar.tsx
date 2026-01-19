@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, usePathname } from "@/i18n/routing";
-import { LayoutDashboard, Package, FolderTree, LogOut, ExternalLink, Sparkles } from "lucide-react";
+import { LayoutDashboard, Package, FolderTree, LogOut, ExternalLink, Sparkles, Play } from "lucide-react";
 import { logout } from "@/lib/auth";
 
 export default function AdminSidebar() {
@@ -11,6 +11,7 @@ export default function AdminSidebar() {
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard, description: "Ümumi baxış" },
     { href: "/admin/products", label: "Məhsullar", icon: Package, description: "Məhsul idarəsi" },
     { href: "/admin/categories", label: "Kateqoriyalar", icon: FolderTree, description: "Kateqoriya idarəsi" },
+    { href: "/admin/shorts", label: "Qısa Videolar", icon: Play, description: "YouTube Shorts" },
   ];
 
   const handleLogout = () => {

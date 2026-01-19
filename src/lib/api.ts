@@ -626,3 +626,196 @@ export async function getCategoryById(id: number): Promise<ApiResponse<Category>
     return null;
   }
 }
+
+// ============================================
+// SHORT VIDEO CRUD OPERATIONS
+// ============================================
+
+export interface ShortVideoGetDto {
+  id: number;
+  isDeleted: boolean;
+  createdDate: string;
+  title: string;
+  link: string;
+  isActive: boolean;
+}
+
+export interface ShortVideoPostDto {
+  title: string;
+  createdDate: string;
+  link: string;
+  isActive: boolean;
+}
+
+export interface ShortVideoPutDto {
+  id: number;
+  title: string;
+  link: string;
+  isActive: boolean;
+}
+
+// Get all active short videos (public)
+export async function getShortVideos(): Promise<ApiResponse<ShortVideoGetDto[]> | null> {
+  try {
+    const res = await fetch(`${API_URL}/shortvideo`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error("ShortVideo Fetch Error:", error);
+    return null;
+  }
+}
+
+// Get short video by ID
+export async function getShortVideoById(id: number): Promise<ApiResponse<ShortVideoGetDto> | null> {
+  try {
+    const res = await fetch(`${API_URL}/shortvideo/${id}`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error("ShortVideo Fetch Error:", error);
+    return null;
+  }
+}
+
+// Create short video
+export async function createShortVideo(data: ShortVideoPostDto): Promise<ApiResponse<number>> {
+  const token = getToken();
+
+  if (!token) {
+    return {
+      success: false,
+      message: "Token tapılmadı. Zəhmət olmasa yenidən login olun.",
+      data: 0,
+      statusCode: 401,
+      errors: ["Unauthorized"]
+    };
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/shortvideo`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      return {
+        success: false,
+        message: `Video yaradılmadı: ${res.status} ${res.statusText}`,
+        data: 0,
+        statusCode: res.status,
+        errors: [errorText || "Create failed"]
+      };
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Create ShortVideo Error:", error);
+    return {
+      success: false,
+      message: "Video yaratma xətası",
+      data: 0,
+      statusCode: 500,
+      errors: [(error as Error).message]
+    };
+  }
+}
+
+// Update short video
+export async function updateShortVideo(id: number, data: ShortVideoPutDto): Promise<ApiResponse<boolean>> {
+  const token = getToken();
+
+  if (!token) {
+    return {
+      success: false,
+      message: "Token tapılmadı. Zəhmət olmasa yenidən login olun.",
+      data: false,
+      statusCode: 401,
+      errors: ["Unauthorized"]
+    };
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/shortvideo`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      return {
+        success: false,
+        message: `Video yenilənmədi: ${res.status} ${res.statusText}`,
+        data: false,
+        statusCode: res.status,
+        errors: [errorText || "Update failed"]
+      };
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Update ShortVideo Error:", error);
+    return {
+      success: false,
+      message: "Video yeniləmə xətası",
+      data: false,
+      statusCode: 500,
+      errors: [(error as Error).message]
+    };
+  }
+}
+
+// Delete short video
+export async function deleteShortVideo(id: number): Promise<ApiResponse<null>> {
+  const token = getToken();
+
+  if (!token) {
+    return {
+      success: false,
+      message: "Token tapılmadı. Zəhmət olmasa yenidən login olun.",
+      data: null,
+      statusCode: 401,
+      errors: ["Unauthorized"]
+    };
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/shortvideo/${id}`, {
+      method: "DELETE",
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      return {
+        success: false,
+        message: `Video silinmədi: ${res.status} ${res.statusText}`,
+        data: null,
+        statusCode: res.status,
+        errors: [errorText || "Delete failed"]
+      };
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Delete ShortVideo Error:", error);
+    return {
+      success: false,
+      message: "Video silmə xətası",
+      data: null,
+      statusCode: 500,
+      errors: [(error as Error).message]
+    };
+  }
+}
