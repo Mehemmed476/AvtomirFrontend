@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { getCategories, deleteCategory } from "@/lib/api";
 import { Category } from "@/types";
-import { Edit, Trash2, Plus, Folder, FolderOpen, ChevronRight, Search } from "lucide-react";
+import { Edit, Trash2, Plus, Folder, FolderOpen, ChevronRight, ChevronDown, Search, ChevronsUpDown } from "lucide-react";
 import { Link } from "@/i18n/routing";
 
 export default function AdminCategoriesPage() {
@@ -11,13 +11,58 @@ export default function AdminCategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
+  const [allExpanded, setAllExpanded] = useState(true);
+
+  // Tüm parent kategorilerin ID'lerini al (children olanlar)
+  const getAllParentIds = useCallback((cats: Category[]): number[] => {
+    let ids: number[] = [];
+    for (const cat of cats) {
+      if (cat.children && cat.children.length > 0) {
+        ids.push(cat.id);
+        ids = ids.concat(getAllParentIds(cat.children));
+      }
+    }
+    return ids;
+  }, []);
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
     const res = await getCategories();
-    if (res?.success) setCategories(res.data);
+    if (res?.success) {
+      setCategories(res.data);
+      // Varsayılan olarak tüm kategorileri aç
+      const parentIds = getAllParentIds(res.data);
+      setExpandedCategories(new Set(parentIds));
+      setAllExpanded(true);
+    }
     setLoading(false);
-  }, []);
+  }, [getAllParentIds]);
+
+  const toggleCategory = (id: number) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleAllCategories = () => {
+    if (allExpanded) {
+      // Hepsini kapat
+      setExpandedCategories(new Set());
+      setAllExpanded(false);
+    } else {
+      // Hepsini aç
+      const parentIds = getAllParentIds(categories);
+      setExpandedCategories(new Set(parentIds));
+      setAllExpanded(true);
+    }
+  };
 
   useEffect(() => {
     fetchCategories();
@@ -51,6 +96,7 @@ export default function AdminCategoriesPage() {
 
   const renderCategoryRow = (category: Category, level: number = 0, parentId: number | null = null, index: number = 0) => {
     const hasChildren = category.children && category.children.length > 0;
+    const isExpanded = expandedCategories.has(category.id);
     const indent = level * 28;
     const uniqueKey = `cat-${parentId || 'root'}-${level}-${index}-${category.id}`;
 
@@ -58,9 +104,20 @@ export default function AdminCategoriesPage() {
       <div key={uniqueKey}>
         <div className="flex items-center justify-between px-6 py-4 hover:bg-slate-800/30 transition-colors border-b border-slate-800/50 group">
           <div className="flex items-center gap-3" style={{ paddingLeft: `${indent}px` }}>
-            {level > 0 && (
+            {hasChildren ? (
+              <button
+                onClick={() => toggleCategory(category.id)}
+                className="p-1 -ml-2 hover:bg-slate-700/50 rounded-lg transition-all"
+              >
+                {isExpanded ? (
+                  <ChevronDown size={16} className="text-purple-400" />
+                ) : (
+                  <ChevronRight size={16} className="text-slate-500" />
+                )}
+              </button>
+            ) : level > 0 ? (
               <ChevronRight size={14} className="text-slate-600 -ml-4" />
-            )}
+            ) : null}
             <div className={`
               w-10 h-10 rounded-xl flex items-center justify-center transition-all
               ${hasChildren
@@ -71,7 +128,11 @@ export default function AdminCategoriesPage() {
               }
             `}>
               {hasChildren ? (
-                <FolderOpen className="text-purple-400" size={18} />
+                isExpanded ? (
+                  <FolderOpen className="text-purple-400" size={18} />
+                ) : (
+                  <Folder className="text-purple-400" size={18} />
+                )
               ) : (
                 <Folder className={level > 0 ? "text-slate-500" : "text-blue-400"} size={18} />
               )}
@@ -110,7 +171,7 @@ export default function AdminCategoriesPage() {
           </div>
         </div>
 
-        {hasChildren &&
+        {hasChildren && isExpanded &&
           category.children!.map((child, idx) => renderCategoryRow(child, level + 1, category.id, idx))
         }
       </div>
@@ -154,6 +215,16 @@ export default function AdminCategoriesPage() {
             className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
           />
         </div>
+        <button
+          onClick={toggleAllCategories}
+          className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all whitespace-nowrap"
+          title={allExpanded ? "Hamısını Bağla" : "Hamısını Aç"}
+        >
+          <ChevronsUpDown size={18} />
+          <span className="text-sm font-medium">
+            {allExpanded ? "Hamısını Bağla" : "Hamısını Aç"}
+          </span>
+        </button>
       </div>
 
       <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 overflow-hidden">

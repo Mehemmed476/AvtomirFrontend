@@ -111,7 +111,7 @@ export async function getCategories(): Promise<ApiResponse<Category[]> | null> {
 export async function getProductBySlug(slug: string): Promise<ApiResponse<Product> | null> {
   try {
     const encodedSlug = encodeURIComponent(slug);
-    const res = await fetch(`${API_URL}/products/${encodedSlug}`, { next: { revalidate: 60 } });
+    const res = await fetch(`${API_URL}/products/${encodedSlug}`, { cache: 'no-store' });
 
     if (!res.ok) {
       console.error(`API Error: ${res.status} - ${res.statusText}`);

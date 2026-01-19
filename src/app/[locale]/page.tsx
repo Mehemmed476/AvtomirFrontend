@@ -179,7 +179,7 @@ export default async function HomePage() {
             </div>
             <div className="space-y-1 md:space-y-2">
               <Users size={28} className="mx-auto text-primary mb-2 md:mb-4 md:w-10 md:h-10" />
-              <h3 className="text-2xl md:text-4xl font-extrabold text-white">5000+</h3>
+              <h3 className="text-2xl md:text-4xl font-extrabold text-white">100000+</h3>
               <p className="text-gray-400 font-medium uppercase text-[10px] md:text-sm tracking-wider">{t('stats.clients')}</p>
             </div>
             <div className="space-y-1 md:space-y-2">
@@ -189,7 +189,7 @@ export default async function HomePage() {
             </div>
             <div className="space-y-1 md:space-y-2">
               <Clock size={28} className="mx-auto text-primary mb-2 md:mb-4 md:w-10 md:h-10" />
-              <h3 className="text-2xl md:text-4xl font-extrabold text-white">5 {t('stats.years')}</h3>
+              <h3 className="text-2xl md:text-4xl font-extrabold text-white">26 {t('stats.years')}</h3>
               <p className="text-gray-400 font-medium uppercase text-[10px] md:text-sm tracking-wider">{t('stats.experience')}</p>
             </div>
           </div>

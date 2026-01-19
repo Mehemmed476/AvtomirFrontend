@@ -20,6 +20,7 @@ export interface Product {
   whatsAppLink?: string;        // WhatsApp linki
   metaTitle?: string;           // SEO Title
   metaDescription?: string;     // SEO Description
+  videoLink?: string;           // Video Link
 }
 
 // Admin Panel üçün məhsul detay tipi (ProductListDto + əlavə sahələr)
@@ -44,6 +45,7 @@ export interface ProductDetailDto {
   whatsAppLink?: string;
   metaTitle?: string;
   metaDescription?: string;
+  videoLink?: string;
   showPrice?: boolean;
   priceText?: string;
   discountRate?: number;

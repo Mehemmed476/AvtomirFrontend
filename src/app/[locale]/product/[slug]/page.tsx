@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import ProductGallery from '@/components/ProductGallery';
-import { Check, ShieldCheck, Truck, MessageCircle, ShoppingCart, Info, Package } from 'lucide-react';
+import { Check, ShieldCheck, Truck, MessageCircle, ShoppingCart, Info, Package, PlayCircle } from 'lucide-react';
 
 interface Props {
   params: Promise<{ slug: string; locale: string }>;
@@ -17,6 +17,21 @@ export default async function ProductDetailPage({ params }: Props) {
   // API-dən məhsulu çək
   const response = await getProductBySlug(slug);
   const product = response?.data;
+
+  // DEBUG LOGS
+  console.log("🔍 [ProductDetail] Slug:", slug);
+  console.log("🔍 [ProductDetail] Product Data:", JSON.stringify(product, null, 2));
+  if (product) {
+    console.log("🔍 [ProductDetail] Keys:", Object.keys(product));
+    console.log("🔍 [ProductDetail] videoLink:", product.videoLink);
+    // Check for case sensitivity issues
+    console.log("🔍 [ProductDetail] VideoLink:", (product as any).VideoLink);
+
+    // Normalization incase backend returns PascalCase
+    if (!product.videoLink && (product as any).VideoLink) {
+      product.videoLink = (product as any).VideoLink;
+    }
+  }
 
   // Əgər məhsul tapılmasa 404 səhifəsinə at
   if (!product) {
@@ -95,6 +110,20 @@ export default async function ProductDetailPage({ params }: Props) {
               <p className="text-gray-400 leading-relaxed">
                 {product.shortDescription || "Bu məhsul üçün qısa məlumat yoxdur."}
               </p>
+
+              {product.videoLink && (
+                <div className="pt-2">
+                  <a
+                    href={product.videoLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-red-500 hover:text-red-400 transition-colors font-medium border border-red-500/30 bg-red-500/10 px-4 py-2 rounded-lg"
+                  >
+                    <PlayCircle size={20} />
+                    <span>Məhsul Videosunu İzlə</span>
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* DÜYMƏLƏR */}

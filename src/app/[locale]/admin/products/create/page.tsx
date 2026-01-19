@@ -28,7 +28,8 @@ export default function CreateProductPage() {
     oldPrice: "",
     shortDescription: "",
     description: "",
-    isNew: false
+    isNew: false,
+    videoLink: ""
   });
 
   useEffect(() => {
@@ -133,7 +134,8 @@ export default function CreateProductPage() {
         galleryImageUrls: galleryUrls,  // DEĞİŞTİ: Her zaman array
         categoryIds: formState.categoryIds,  // DEĞİŞTİ: Artıq array-dir
         isNew: formState.isNew,
-        isInStock: true
+        isInStock: true,
+        videoLink: formState.videoLink || undefined
       };
 
       // 4. Məhsulu yarat
@@ -187,6 +189,11 @@ export default function CreateProductPage() {
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">SKU / Məhsul Kodu</label>
                 <input value={formState.sku} onChange={(e) => setFormState({ ...formState, sku: e.target.value })} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="Məs: BMW-RAD-001" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Video Link</label>
+                <input value={formState.videoLink} onChange={(e) => setFormState({ ...formState, videoLink: e.target.value })} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="YouTube və ya digər video linki" />
               </div>
 
               <div>
