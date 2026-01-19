@@ -75,7 +75,7 @@ export interface ProductParams {
   pageNumber?: number;
   pageSize?: number;
   search?: string;
-  categoryId?: number;
+  categoryIds?: number[]; // Single ID əvəzinə ID array'i (Filter products by list of category IDs)
   minPrice?: number;
   maxPrice?: number;
   sort?: string;

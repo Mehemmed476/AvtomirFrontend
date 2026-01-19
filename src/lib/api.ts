@@ -41,7 +41,7 @@ export async function getProducts(
   pageSize: number = 12,
   filters?: {
     search?: string;
-    categoryId?: number;
+    categoryIds?: number[]; // Single ID yenine ID array'i
     minPrice?: number;
     maxPrice?: number;
     sort?: string;
@@ -53,14 +53,19 @@ export async function getProducts(
       size: pageSize.toString(),
     });
 
-    // Only add filter parameters if they have valid values (prevents 400 errors)
+    // Only add filter parameters if they have valid values
     if (filters) {
       if (filters.search && filters.search.trim() !== '') {
         params.append('search', filters.search.trim());
       }
-      if (filters.categoryId && filters.categoryId > 0) {
-        params.append('categoryId', filters.categoryId.toString());
+
+      // Handle multiple category IDs
+      if (filters.categoryIds && filters.categoryIds.length > 0) {
+        filters.categoryIds.forEach(id => {
+          if (id > 0) params.append('categoryIds', id.toString());
+        });
       }
+
       if (filters.minPrice !== undefined && filters.minPrice !== null && filters.minPrice >= 0) {
         params.append('minPrice', filters.minPrice.toString());
       }

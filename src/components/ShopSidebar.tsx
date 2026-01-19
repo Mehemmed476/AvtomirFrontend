@@ -1,9 +1,9 @@
 "use client";
 
-import { useRouter } from "@/i18n/routing"; 
+import { useRouter } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
-import { X, Filter, Check } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { X, Filter, Check, ChevronRight, ChevronDown, Folder, FolderOpen } from "lucide-react";
 import { Category } from "@/types";
 import { useDebouncedCallback } from "use-debounce";
 import { useTranslations } from "next-intl";
@@ -21,6 +21,38 @@ export default function ShopSidebar({ categories, onClose }: Props) {
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
   const selectedCatId = searchParams.get("categoryId");
+
+  // Expanded categories state
+  const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
+
+  // Helper to find path to a category
+  const findCategoryPath = useCallback((cats: Category[], targetId: number, path: number[] = []): number[] | null => {
+    for (const cat of cats) {
+      if (cat.id === targetId) {
+        return [...path, cat.id];
+      }
+      if (cat.children && cat.children.length > 0) {
+        const foundPath = findCategoryPath(cat.children, targetId, [...path, cat.id]);
+        if (foundPath) return foundPath;
+      }
+    }
+    return null;
+  }, []);
+
+  // Initialize expanded state based on selected category
+  useEffect(() => {
+    if (selectedCatId) {
+      const id = parseInt(selectedCatId);
+      const path = findCategoryPath(categories, id);
+      if (path) {
+        setExpandedCategories(prev => {
+          const newSet = new Set(prev);
+          path.forEach(pid => newSet.add(pid));
+          return newSet;
+        });
+      }
+    }
+  }, [selectedCatId, categories, findCategoryPath]);
 
   const updateUrl = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -41,7 +73,7 @@ export default function ShopSidebar({ categories, onClose }: Props) {
   const onMinChange = (val: string) => { setMinPrice(val); handlePriceChange(val, maxPrice); };
   const onMaxChange = (val: string) => { setMaxPrice(val); handlePriceChange(minPrice, val); };
 
-  const toggleCategory = (id: number) => {
+  const handleCategoryClick = (id: number) => {
     if (selectedCatId === id.toString()) {
       updateUrl("categoryId", null);
     } else {
@@ -49,29 +81,108 @@ export default function ShopSidebar({ categories, onClose }: Props) {
     }
   };
 
+  const toggleExpand = (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
   const clearFilters = () => {
     setMinPrice("");
     setMaxPrice("");
+    setExpandedCategories(new Set()); // Collapse all on clear? Optional.
     router.push("/shop");
     if (onClose) onClose();
   };
 
   // --- STİL MƏNTİQİ ---
-  // onClose varsa (Mobile Drawer içindədir): Full hündürlük, border yoxdur, fixed DEYİL (valideyn fixed edir).
-  // onClose yoxsa (Desktop Sidebar): Sticky, border var, shadow var.
-  const containerClasses = onClose 
-    ? "h-full w-full bg-dark-800" 
+  const containerClasses = onClose
+    ? "h-full w-full bg-dark-800"
     : "sticky top-24 h-[85vh] rounded-2xl shadow-xl shadow-black/20 bg-dark-800 border border-dark-700";
+
+  // --- RECURSIVE CATEGORY RENDERER ---
+  const renderCategory = (category: Category, level: number = 0) => {
+    const isSelected = selectedCatId === category.id.toString();
+    const hasChildren = category.children && category.children.length > 0;
+    const isExpanded = expandedCategories.has(category.id);
+    const paddingLeft = level * 16 + 12; // Base padding 12px + 16px per level
+
+    return (
+      <div key={category.id} className="w-full">
+        <div
+          className={`
+            relative flex items-center justify-between py-2 pr-3 rounded-lg text-sm transition-all duration-200 group cursor-pointer
+            ${isSelected
+              ? "bg-primary/10 text-primary border border-primary/20"
+              : "text-gray-400 hover:bg-dark-700 hover:text-white border border-transparent"}
+          `}
+          style={{ paddingLeft: `${paddingLeft}px` }}
+          onClick={() => handleCategoryClick(category.id)}
+        >
+          {/* Active Indicator Line (Left) */}
+          {isSelected && (
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
+          )}
+
+          <div className="flex items-center gap-2 flex-1 overflow-hidden">
+            {/* Expand/Collapse Button (if has children) */}
+            {hasChildren ? (
+              <button
+                onClick={(e) => toggleExpand(e, category.id)}
+                className={`
+                  p-0.5 rounded-md transition-colors
+                  ${isSelected ? "hover:bg-primary/20" : "hover:bg-dark-600"}
+                `}
+              >
+                {isExpanded ? (
+                  <ChevronDown size={14} className={isSelected ? "text-primary" : "text-gray-500"} />
+                ) : (
+                  <ChevronRight size={14} className={isSelected ? "text-primary" : "text-gray-500"} />
+                )}
+              </button>
+            ) : (
+              // Spacer for alignment if no children
+              <span className="w-[18px]" />
+            )}
+
+            <span className="truncate select-none">{category.name}</span>
+          </div>
+
+          {/* Checkmark for selection */}
+          {isSelected && <Check size={14} className="shrink-0 text-primary ml-2" />}
+        </div>
+
+        {/* Render Children */}
+        {hasChildren && isExpanded && (
+          <div className="relative mt-1">
+            {/* Guide Line (Optional, makes it look more like a tree) */}
+            <div
+              className="absolute left-0 top-0 bottom-0 w-px bg-dark-700"
+              style={{ left: `${paddingLeft + 9}px` }} // Align with the chevron center roughly
+            />
+            {category.children!.map(child => renderCategory(child, level + 1))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className={`flex flex-col transition-all ${containerClasses}`}>
-      
+
       {/* 1. HEADER */}
       <div className="flex-none p-6 border-b border-dark-700 flex items-center justify-between z-20">
         <h3 className="font-bold text-lg text-white flex items-center gap-2">
           <Filter size={18} className="text-primary" /> {t('filters')}
         </h3>
-        
+
         {/* Mobildə bağlama düyməsi */}
         {onClose && (
           <button onClick={onClose} className="p-2 bg-dark-700 rounded-full text-gray-400 hover:text-white transition-colors">
@@ -89,7 +200,7 @@ export default function ShopSidebar({ categories, onClose }: Props) {
 
       {/* 2. BODY (SCROLL) */}
       <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
-        
+
         {/* Qiymət */}
         <div className="mb-8">
           <h4 className="font-medium text-gray-300 mb-3 text-sm uppercase tracking-wide flex justify-between">
@@ -97,9 +208,9 @@ export default function ShopSidebar({ categories, onClose }: Props) {
           </h4>
           <div className="flex items-center gap-2">
             <div className="relative w-full">
-              <input 
-                type="number" 
-                placeholder="Min" 
+              <input
+                type="number"
+                placeholder="Min"
                 value={minPrice}
                 onChange={(e) => onMinChange(e.target.value)}
                 className="w-full bg-dark-900 border border-dark-600 rounded-lg pl-3 pr-2 py-2.5 text-sm text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-gray-600"
@@ -107,9 +218,9 @@ export default function ShopSidebar({ categories, onClose }: Props) {
             </div>
             <span className="text-gray-500 font-bold">-</span>
             <div className="relative w-full">
-              <input 
-                type="number" 
-                placeholder="Max" 
+              <input
+                type="number"
+                placeholder="Max"
                 value={maxPrice}
                 onChange={(e) => onMaxChange(e.target.value)}
                 className="w-full bg-dark-900 border border-dark-600 rounded-lg pl-3 pr-2 py-2.5 text-sm text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-gray-600"
@@ -121,42 +232,29 @@ export default function ShopSidebar({ categories, onClose }: Props) {
         {/* Kateqoriyalar */}
         <div>
           <h4 className="font-medium text-gray-300 mb-3 text-sm uppercase tracking-wide">
-              {t('categories')}
+            {t('categories')}
           </h4>
           <div className="space-y-1 pb-4">
-            {categories.length > 0 ? categories.map((cat) => {
-              const isActive = selectedCatId === cat.id.toString();
-              return (
-                <button 
-                  key={cat.id} 
-                  onClick={() => toggleCategory(cat.id)}
-                  className={`
-                    w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group
-                    ${isActive 
-                      ? "bg-primary/10 text-primary border border-primary/20" 
-                      : "text-gray-400 hover:bg-dark-700 hover:text-white border border-transparent"}
-                  `}
-                >
-                  <span className="text-left">{cat.name}</span>
-                  {isActive && <Check size={14} className="shrink-0" />}
-                </button>
-              );
-            }) : (
+            {categories.length > 0 ? (
+              categories
+                .filter(c => !c.parentId) // Only render roots first
+                .map(cat => renderCategory(cat))
+            ) : (
               <p className="text-gray-600 text-xs italic">Kateqoriya tapılmadı</p>
             )}
           </div>
         </div>
       </div>
-      
+
       {/* 3. FOOTER (MOBILE ÜÇÜN "Nəticələri Göstər" DÜYMƏSİ) */}
       {onClose && (
         <div className="flex-none p-4 border-t border-dark-700 pb-8 bg-dark-800">
-            <button 
+          <button
             onClick={onClose}
             className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-primary/20"
-            >
-             Nəticələri Göstər
-            </button>
+          >
+            Nəticələri Göstər
+          </button>
         </div>
       )}
 

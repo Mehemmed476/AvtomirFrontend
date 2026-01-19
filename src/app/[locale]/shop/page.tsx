@@ -32,29 +32,70 @@ export default async function ShopPage({ searchParams }: Props) {
   const viewMode = (resolvedParams.view as 'grid' | 'list') || 'grid';
 
   const search = resolvedParams.search?.toString();
-  const categoryId = resolvedParams.categoryId ? Number(resolvedParams.categoryId) : undefined;
+  const categoryIdParam = resolvedParams.categoryId ? Number(resolvedParams.categoryId) : undefined;
   const minPrice = resolvedParams.minPrice ? Number(resolvedParams.minPrice) : undefined;
   const maxPrice = resolvedParams.maxPrice ? Number(resolvedParams.maxPrice) : undefined;
   const sort = resolvedParams.sort?.toString();
 
   // Debug
-  console.log('🔍 Shop Filters:', { page, search, categoryId, sort });
+  console.log('🔍 Shop Filters:', { page, search, categoryId: categoryIdParam, sort });
 
-  // 2. Fetching
-  const productsData = getProducts(page, pageSize, {
+  // 2. Fetching Strategy (Sequential for Category Tree Logic)
+
+  // A. First fetch categories to understand the tree structure
+  const categoriesRes = await getCategories();
+  const categories = categoriesRes?.data || [];
+
+  // B. Resolve descendant IDs if a category is selected
+  let targetCategoryIds: number[] | undefined = undefined;
+
+  if (categoryIdParam) {
+    targetCategoryIds = [categoryIdParam]; // Always include the selected one
+
+    // Recursive helper to collect descendant IDs
+    const collectDescendantIds = (cats: any[], targetId: number): number[] => {
+      let ids: number[] = [];
+      for (const cat of cats) {
+        if (cat.id === targetId) {
+          // Found the target, now collect all its children recursively
+          const getAllChildren = (c: any) => {
+            if (c.children) {
+              for (const child of c.children) {
+                ids.push(child.id);
+                getAllChildren(child);
+              }
+            }
+          };
+          getAllChildren(cat);
+          return ids;
+        }
+        if (cat.children) {
+          const found = collectDescendantIds(cat.children, targetId);
+          if (found.length > 0) return found;
+        }
+      }
+      return ids;
+    };
+
+    const descendantIds = collectDescendantIds(categories, categoryIdParam);
+    if (descendantIds.length > 0) {
+      targetCategoryIds = [...targetCategoryIds, ...descendantIds];
+    }
+
+    console.log(`🌳 Category ${categoryIdParam} selected. Including descendants:`, targetCategoryIds);
+  }
+
+  // C. Fetch products with the resolved list of IDs
+  const productsRes = await getProducts(page, pageSize, {
     search,
-    categoryId,
+    categoryIds: targetCategoryIds,
     minPrice,
     maxPrice,
     sort,
   });
-  const categoriesData = getCategories();
-
-  const [productsRes, categoriesRes] = await Promise.all([productsData, categoriesData]);
 
   const pagedResult = productsRes?.data;
   const products = pagedResult?.items || [];
-  const categories = categoriesRes?.data || [];
 
   const metaData = {
     currentPage: pagedResult?.pageNumber || page,

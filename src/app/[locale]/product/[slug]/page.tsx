@@ -112,15 +112,20 @@ export default async function ProductDetailPage({ params }: Props) {
               </p>
 
               {product.videoLink && (
-                <div className="pt-2">
+                <div className="pt-4">
                   <a
                     href={product.videoLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-red-500 hover:text-red-400 transition-colors font-medium border border-red-500/30 bg-red-500/10 px-4 py-2 rounded-lg"
+                    className="group relative flex w-full sm:w-auto items-center justify-center gap-4 overflow-hidden rounded-xl bg-gradient-to-r from-red-700 to-red-500 px-8 py-4 text-white shadow-lg shadow-red-900/30 transition-all duration-300 hover:scale-[1.03] hover:shadow-red-600/40 active:scale-95"
                   >
-                    <PlayCircle size={20} />
-                    <span>Məhsul Videosunu İzlə</span>
+                    <div className="absolute inset-0 bg-white/10 opacity-0 transition-opacity group-hover:opacity-100" />
+
+                    <div className="relative rounded-full bg-white/20 p-2 transition-colors group-hover:bg-white/30">
+                      <PlayCircle size={24} className="fill-white text-white" />
+                    </div>
+
+                    <span className="text-lg font-bold tracking-wide">Videonu İzlə</span>
                   </a>
                 </div>
               )}
