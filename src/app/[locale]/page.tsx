@@ -5,6 +5,7 @@ import { getProducts, getImageUrl, getShortVideos } from '@/lib/api';
 import { ArrowRight, CheckCircle, Truck, ShieldCheck, Clock, ShoppingCart, Eye, Phone, Users, Box, Star, MessageCircle } from 'lucide-react';
 import { Metadata } from 'next';
 import ShortVideoCarousel from '@/components/ShortVideoCarousel';
+import { WhatsAppBrandIcon } from '@/components/icons/WhatsAppIcon';
 
 export const metadata: Metadata = {
   title: "Avtomir - Bakıda Ən Ucuz Ehtiyat Hissələri və Online Zapçast",
@@ -71,7 +72,7 @@ export default async function HomePage() {
               className="w-full sm:w-auto group bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-green-500/50 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg transition-all transform hover:scale-105 flex items-center justify-center gap-3"
             >
               <div className="bg-green-600/20 p-1.5 rounded-full group-hover:bg-green-600 group-hover:text-white text-green-500 transition-colors">
-                <Phone size={18} />
+                <WhatsAppBrandIcon size={18} />
               </div>
               <span>070 322 30 66</span>
             </a>

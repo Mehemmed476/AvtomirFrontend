@@ -781,7 +781,13 @@ export async function updateShortVideo(id: number, data: ShortVideoPutDto): Prom
   }
 
   try {
-    const res = await fetch(`${API_URL}/shortvideo/${id}`, {
+    console.log("🟠 Updating Short Video Debug:", {
+      url: `${API_URL}/shortvideo`,
+      method: "PUT",
+      data: data
+    });
+
+    const res = await fetch(`${API_URL}/shortvideo`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
