@@ -18,7 +18,7 @@ export default async function LocaleLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params; // Next.js 15 üçün await vacibdir
+  const { locale } = await params; // Next.js 15+ üçün await vacibdir
 
   if (!routing.locales.includes(locale as any)) {
     notFound();
@@ -79,6 +79,23 @@ export default async function LocaleLayout({
           </BaseLayout>
 
         </NextIntlClientProvider>
+
+        {/* --- GOOGLE ANALYTICS BAŞLANGIÇ --- */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-5VEP9GZ219"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-5VEP9GZ219');
+          `}
+        </Script>
+        {/* --- GOOGLE ANALYTICS BİTİŞ --- */}
+
         <Script
           id="json-ld"
           type="application/ld+json"
