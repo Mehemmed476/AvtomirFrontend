@@ -6,6 +6,7 @@ import { ArrowRight, CheckCircle, Truck, ShieldCheck, Clock, ShoppingCart, Eye, 
 import { Metadata } from 'next';
 import ShortVideoCarousel from '@/components/ShortVideoCarousel';
 import { WhatsAppBrandIcon } from '@/components/icons/WhatsAppIcon';
+import { getSettings } from '@/lib/settings';
 
 export const metadata: Metadata = {
   title: "Avtomir - Bakıda Ən Ucuz Ehtiyat Hissələri və Online Zapçast",
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const t = await getTranslations('Home');
+  const settings = await getSettings();
 
   // Backend-dən ən yeni 4 məhsulu çəkirik
   const newProductsRes = await getProducts(1, 4, {
@@ -26,6 +28,9 @@ export default async function HomePage() {
 
   const newProducts = newProductsRes?.data?.items || [];
   const shortVideos = shortVideosRes?.data || [];
+
+  const whatsAppUrl = settings?.whatsapp || "https://wa.me/994703223066";
+  const displayPhone = settings?.phone || "070 322 30 66";
 
   return (
     <main className="min-h-screen bg-dark-900 text-white">
@@ -66,7 +71,7 @@ export default async function HomePage() {
 
             {/* Yeni WhatsApp/Telefon Butonu */}
             <a
-              href="https://wa.me/994703223066"
+              href={whatsAppUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto group bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-green-500/50 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg transition-all transform hover:scale-105 flex items-center justify-center gap-3"
@@ -74,7 +79,7 @@ export default async function HomePage() {
               <div className="bg-green-600/20 p-1.5 rounded-full group-hover:bg-green-600 group-hover:text-white text-green-500 transition-colors">
                 <WhatsAppBrandIcon size={18} />
               </div>
-              <span>070 322 30 66</span>
+              <span>{displayPhone}</span>
             </a>
           </div>
         </div>

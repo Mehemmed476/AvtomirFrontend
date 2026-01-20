@@ -3,10 +3,16 @@
 import { usePathname } from "@/i18n/routing";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Settings } from "@/types";
 
-export default function BaseLayout({ children }: { children: React.ReactNode }) {
+interface BaseLayoutProps {
+  children: React.ReactNode;
+  settings?: Settings | null;
+}
+
+export default function BaseLayout({ children, settings }: BaseLayoutProps) {
   const pathname = usePathname();
-  
+
   // Admin və ya Login səhifəsi olduğunu yoxlayırıq
   const isAdminArea = pathname.includes("/admin") || pathname.includes("/login");
 
@@ -25,13 +31,13 @@ export default function BaseLayout({ children }: { children: React.ReactNode }) 
     // Buranı MƏCBURİ şəkildə QARA edirik
     <div className="min-h-screen w-full bg-dark-900 text-dark-text flex flex-col">
       <Header />
-      
+
       {/* Header-in altında qalmasın deyə padding */}
       <main className="flex-1 pt-24">
         {children}
       </main>
 
-      <Footer />
+      <Footer settings={settings} />
     </div>
   );
 }

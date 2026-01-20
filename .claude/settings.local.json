@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"c:\\\\Users\\\\Maga\\\\Desktop\\\\Avtomir_Full\\\\frontend\\\\AvtomirFrontend\\\\src\\\\app\\\\[locale]\\\\admin\\\\settings\\\\page.tsx\")"
+    ]
+  }
+}

@@ -138,3 +138,15 @@ export interface CategoryListDto {
   name: string;
   slug: string;
 }
+export interface Settings {
+  phone?: string;
+  email?: string;
+  address?: string;
+  mapUrl?: string;
+  facebook?: string;
+  instagram?: string;
+  whatsapp?: string;
+  youtube?: string;
+  tiktok?: string;
+  footerDescription?: string;
+}

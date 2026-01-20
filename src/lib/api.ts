@@ -2,12 +2,12 @@ import { ApiResponse, Category, Product, ProductParams, PagedResult, ProductDeta
 import Cookies from "js-cookie";
 
 // DƏYİŞİKLİK: Production-da artıq birbaşa domenə (Nginx-ə) müraciət edəcək
-const API_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+export const API_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
   ? "/api"  // Local development - Next.js proxy istifadə edir
   : "https://avtomir.az/api";  // Production
 
 // DƏYİŞİKLİK: Şəkillər üçün əsas URL domen olacaq
-const BASE_IMAGE_URL = "https://avtomir.az";
+export const BASE_IMAGE_URL = "https://avtomir.az";
 
 // Token-i cookie-dən oxu
 function getToken(): string | null {

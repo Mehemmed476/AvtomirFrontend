@@ -5,9 +5,16 @@ import {
 } from 'lucide-react';
 import { Instagram, Facebook, Youtube } from 'lucide-react';
 import { TikTokIcon } from '@/components/icons/TikTokIcon';
+import { getSettings } from '@/lib/settings';
 
 export default async function AboutPage() {
   const t = await getTranslations('About');
+  const settings = await getSettings();
+
+  const instagramUrl = settings?.instagram || "https://www.instagram.com/avtomir.az_0553223066/";
+  const facebookUrl = settings?.facebook || "https://www.facebook.com/Avtomirazerbaijan#";
+  const tiktokUrl = settings?.tiktok || "https://www.tiktok.com/@avtomir.az_official?_r=1&_t=ZS-93CJzjgNN6f";
+  const youtubeUrl = settings?.youtube || "https://www.youtube.com/@avtomiraz814";
 
   return (
     <main className="min-h-screen bg-dark-900 text-white pt-8 md:pt-10 pb-16 md:pb-20">
@@ -37,16 +44,16 @@ export default async function AboutPage() {
 
             {/* Social Media Links - Vertical on mobile, Horizontal on tablet+ */}
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 md:gap-3 pt-2 md:pt-4">
-              <a href="https://www.instagram.com/avtomir.az_0553223066/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center sm:justify-start gap-2 bg-dark-800 px-3 md:px-4 py-2.5 md:py-2 rounded-lg hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all text-sm md:text-base">
+              <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center sm:justify-start gap-2 bg-dark-800 px-3 md:px-4 py-2.5 md:py-2 rounded-lg hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all text-sm md:text-base">
                 <Instagram size={18} /> <span>Instagram</span>
               </a>
-              <a href="https://www.facebook.com/Avtomirazerbaijan#" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center sm:justify-start gap-2 bg-dark-800 px-3 md:px-4 py-2.5 md:py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm md:text-base">
+              <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center sm:justify-start gap-2 bg-dark-800 px-3 md:px-4 py-2.5 md:py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm md:text-base">
                 <Facebook size={18} /> <span>Facebook</span>
               </a>
-              <a href="https://www.youtube.com/@avtomiraz814" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center sm:justify-start gap-2 bg-dark-800 px-3 md:px-4 py-2.5 md:py-2 rounded-lg hover:bg-red-600 transition-colors text-sm md:text-base">
+              <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center sm:justify-start gap-2 bg-dark-800 px-3 md:px-4 py-2.5 md:py-2 rounded-lg hover:bg-red-600 transition-colors text-sm md:text-base">
                 <Youtube size={18} /> <span>YouTube</span>
               </a>
-              <a href="https://www.tiktok.com/@avtomir.az_official?_r=1&_t=ZS-93CJzjgNN6f" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center sm:justify-start gap-2 bg-dark-800 px-3 md:px-4 py-2.5 md:py-2 rounded-lg hover:bg-black transition-colors hover:text-white border border-transparent hover:border-gray-700 text-sm md:text-base">
+              <a href={tiktokUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center sm:justify-start gap-2 bg-dark-800 px-3 md:px-4 py-2.5 md:py-2 rounded-lg hover:bg-black transition-colors hover:text-white border border-transparent hover:border-gray-700 text-sm md:text-base">
                 <TikTokIcon size={18} /> <span>TikTok</span>
               </a>
             </div>

@@ -4,8 +4,13 @@ import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/routing';
 import { Facebook, Instagram, MessageCircle, MapPin, Phone, Mail, ArrowRight, Youtube } from 'lucide-react';
 import { TikTokIcon } from './icons/TikTokIcon';
+import { Settings } from '@/types';
 
-export default function Footer() {
+interface FooterProps {
+  settings?: Settings | null;
+}
+
+export default function Footer({ settings }: FooterProps) {
   const t = useTranslations('Footer');
   const pathname = usePathname();
   const currentYear = new Date().getFullYear();
@@ -13,18 +18,19 @@ export default function Footer() {
   // Admin paneldə Footer görünməsin
   if (pathname.includes("/admin")) return null;
 
-  // --- STATİK DATALAR (Hardcoded) ---
-  const phone = "070 322 30 66";
-  const email = "jamal_damirov@mail.ru";
-  const address = "Atatürk prospekti 235, Bakı (Gənclik m., Ayna Sultanova heykəli istiqaməti)";
-  const mapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3037.661364195639!2d49.84344557574591!3d40.41635205566267!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4030878995103235%3A0x5d1a2965c2a9ee!2sAvtomir.az!5e0!3m2!1str!2saz!4v1768807606342!5m2!1str!2saz";
+  // --- DINAMIK DATALAR ---
+  const phone = settings?.phone || "070 322 30 66";
+  const email = settings?.email || "jamal_damirov@mail.ru";
+  const address = settings?.address || "Atatürk prospekti 235, Bakı (Gənclik m., Ayna Sultanova heykəli istiqaməti)";
+  const mapUrl = settings?.mapUrl || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3037.661364195639!2d49.84344557574591!3d40.41635205566267!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4030878995103235%3A0x5d1a2965c2a9ee!2sAvtomir.az!5e0!3m2!1str!2saz!4v1768807606342!5m2!1str!2saz";
+  const description = settings?.footerDescription || t('description');
 
   const socialLinks = [
-    { icon: Facebook, href: "https://www.facebook.com/Avtomirazerbaijan" },
-    { icon: Instagram, href: "https://www.instagram.com/avtomir.az_0553223066/" },
-    { icon: Youtube, href: "https://www.youtube.com/@avtomiraz814" },
-    { icon: TikTokIcon, href: "https://www.tiktok.com/@avtomir.az_official?_r=1&_t=ZS-93CJzjgNN6f" },
-    { icon: MessageCircle, href: "https://wa.me/994703223066" },
+    { icon: Facebook, href: settings?.facebook || "https://www.facebook.com/Avtomirazerbaijan" },
+    { icon: Instagram, href: settings?.instagram || "https://www.instagram.com/avtomir.az_0553223066/" },
+    { icon: Youtube, href: settings?.youtube || "https://www.youtube.com/@avtomiraz814" },
+    { icon: TikTokIcon, href: settings?.tiktok || "https://www.tiktok.com/@avtomir.az_official?_r=1&_t=ZS-93CJzjgNN6f" },
+    { icon: MessageCircle, href: settings?.whatsapp || "https://wa.me/994703223066" },
   ];
 
   return (
@@ -40,21 +46,23 @@ export default function Footer() {
               AVTO<span className="text-primary">MIR</span>
             </Link>
             <p className="text-sm leading-relaxed text-gray-500">
-              {t('description')}
+              {description}
             </p>
 
             {/* Sosial İkonlar */}
             <div className="flex gap-4 pt-2">
               {socialLinks.map((item, i) => (
-                <a
-                  key={i}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-dark-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 transform hover:-translate-y-1"
-                >
-                  <item.icon size={18} />
-                </a>
+                item.href && (
+                  <a
+                    key={i}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-dark-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 transform hover:-translate-y-1"
+                  >
+                    <item.icon size={18} />
+                  </a>
+                )
               ))}
             </div>
           </div>
@@ -114,7 +122,7 @@ export default function Footer() {
 
               {/* Üzərinə basanda böyük xəritəyə keçid (Google Maps saytına) */}
               <a
-                href="https://www.google.com/maps?q=Avtomir.az"
+                href={mapUrl}
                 target="_blank"
                 className="absolute inset-0 z-10"
                 aria-label="View on Google Maps"

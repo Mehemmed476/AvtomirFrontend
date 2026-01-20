@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { MapPin, Phone, Mail, Clock, Instagram, Facebook, MessageCircle, Youtube } from 'lucide-react';
 import { TikTokIcon } from '@/components/icons/TikTokIcon';
 import { Metadata } from 'next';
+import { getSettings } from '@/lib/settings';
 
 export const metadata: Metadata = {
   title: "Bizimlə Əlaqə | Avtomir - Ehtiyat Hissələri Mağazası Bakı",
@@ -10,18 +11,19 @@ export const metadata: Metadata = {
 
 export default async function ContactPage() {
   const t = await getTranslations('Contact');
+  const settings = await getSettings();
 
-  // Hardcoded contact information
-  const phone = "070 322 30 66";
-  const email = "jamal_damirov@mail.ru";
-  const address = "Atatürk prospekti 235, Bakı (Gənclik m., Ayna Sultanova heykəli istiqaməti)";
+  // Dynamic contact information
+  const phone = settings?.phone || "070 322 30 66";
+  const email = settings?.email || "jamal_damirov@mail.ru";
+  const address = settings?.address || "Atatürk prospekti 235, Bakı (Gənclik m., Ayna Sultanova heykəli istiqaməti)";
   const workHours = "09:00 - 20:30";
-  const instagramUrl = "https://www.instagram.com/avtomir.az_0703223066/";
-  const facebookUrl = "https://www.facebook.com/Avtomirazerbaijan#";
-  const whatsappUrl = "https://wa.me/994703223066";
-  const youtubeUrl = "https://www.youtube.com/@avtomiraz814";
-  const tiktokUrl = "https://www.tiktok.com/@avtomir.az_official?_r=1&_t=ZS-93CJzjgNN6f";
-  const mapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3037.661364195639!2d49.84344557574591!3d40.41635205566267!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4030878995103235%3A0x5d1a2965c2a9ee!2sAvtomir.az!5e0!3m2!1str!2saz!4v1768807606342!5m2!1str!2saz";
+  const instagramUrl = settings?.instagram || "https://www.instagram.com/avtomir.az_0553223066/";
+  const facebookUrl = settings?.facebook || "https://www.facebook.com/Avtomirazerbaijan#";
+  const whatsappUrl = settings?.whatsapp || "https://wa.me/994703223066";
+  const youtubeUrl = settings?.youtube || "https://www.youtube.com/@avtomiraz814";
+  const tiktokUrl = settings?.tiktok || "https://www.tiktok.com/@avtomir.az_official?_r=1&_t=ZS-93CJzjgNN6f";
+  const mapUrl = settings?.mapUrl || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3037.661364195639!2d49.84344557574591!3d40.41635205566267!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4030878995103235%3A0x5d1a2965c2a9ee!2sAvtomir.az!5e0!3m2!1str!2saz!4v1768807606342!5m2!1str!2saz";
 
   return (
     <main className="min-h-screen bg-dark-900 text-white pt-10 pb-20">

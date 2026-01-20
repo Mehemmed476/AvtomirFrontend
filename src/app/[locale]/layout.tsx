@@ -6,6 +6,7 @@ import { routing } from '@/i18n/routing';
 import "../globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import BaseLayout from "@/components/BaseLayout";
+import { getSettings } from '@/lib/settings';
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -24,16 +25,17 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
+  const settings = await getSettings();
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "AutoPartsStore",
     "name": "Avtomir",
     "image": "https://avtomir.az/logo.png",
-    "description": "Bakıda avtomobil ehtiyat hissələri və aksesuarlarının online satışı.",
+    "description": settings?.footerDescription || "Bakıda avtomobil ehtiyat hissələri və aksesuarlarının online satışı.",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "Atatürk prospekti 65a",
+      "streetAddress": settings?.address || "Atatürk prospekti 65a",
       "addressLocality": "Bakı",
       "addressRegion": "Bakı",
       "postalCode": "AZ1000",
@@ -45,7 +47,7 @@ export default async function LocaleLayout({
       "longitude": "49.846506"
     },
     "url": "https://avtomir.az",
-    "telephone": "+994703223066",
+    "telephone": settings?.phone || "+994703223066",
     "openingHoursSpecification": [
       {
         "@type": "OpeningHoursSpecification",
@@ -72,7 +74,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
 
           {/* Bütün rəng və struktur məsələsini bu həll edir */}
-          <BaseLayout>
+          <BaseLayout settings={settings}>
             {children}
           </BaseLayout>
 
