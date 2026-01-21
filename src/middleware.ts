@@ -8,21 +8,25 @@ export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // --- ADMIN PANEL TƏHLÜKƏSİZLİYİ ---
-  
+
   // URL-in '/admin' hissəsini yoxlayırıq
   // Amma '/admin/login' səhifəsini istisna edirik (yoxsa sonsuz dövrə düşər)
   const isAdminRoute = pathname.includes('/admin');
   const isLoginPage = pathname.includes('/admin/login');
 
   if (isAdminRoute && !isLoginPage) {
-    // 1. Tokeni Cookie-dən oxuyuruq (Adətən 'token' və ya 'accessToken' olur)
+    // 1. Tokeni Cookie-dən oxuyuruq
+    const allCookies = request.cookies.getAll();
+    console.log('🍪 Middleware Cookies:', allCookies.map(c => `${c.name}=${c.value.substring(0, 10)}...`));
+
     const token = request.cookies.get('token')?.value;
+    console.log('🔐 Middleware Token Check:', { path: pathname, hasToken: !!token });
 
     // 2. Əgər token yoxdursa, Login səhifəsinə yönləndiririk
     if (!token) {
       // Mövcud dili URL-dən tapırıq (məs: /az/admin -> az)
       const locale = pathname.split('/')[1] || 'az';
-      
+
       // Redirect URL yaradın
       const loginUrl = new URL(`/${locale}/admin/login`, request.url);
       return NextResponse.redirect(loginUrl);

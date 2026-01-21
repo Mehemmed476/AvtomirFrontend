@@ -912,3 +912,56 @@ export async function deleteShortVideo(id: number): Promise<ApiResponse<null>> {
     };
   }
 }
+
+// ============================================
+// AUDIT LOG / HISTORY
+// ============================================
+
+import { AuditLog } from "@/types";
+
+// Get history for a specific record
+export async function getHistory(tableName: string, recordId: string | number): Promise<AuditLog[]> {
+  try {
+    const res = await fetch(`${API_URL}/History?tableName=${tableName}&recordId=${recordId}`, {
+      cache: 'no-store'
+    });
+
+    if (!res.ok) {
+      console.error("History fetch error:", res.status);
+      return [];
+    }
+
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("History Fetch Error:", error);
+    return [];
+  }
+}
+
+// Get recent activity across all tables (for dashboard)
+export async function getRecentActivity(limit: number = 10): Promise<AuditLog[]> {
+  try {
+    // Fetch history for common tables (using plural table names as in database)
+    const [productHistory, categoryHistory, videoHistory] = await Promise.all([
+      fetch(`${API_URL}/History?tableName=Products&recordId=0`, { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []),
+      fetch(`${API_URL}/History?tableName=Categories&recordId=0`, { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []),
+      fetch(`${API_URL}/History?tableName=ShortVideos&recordId=0`, { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => [])
+    ]);
+
+    // Combine and sort by date
+    const allLogs: AuditLog[] = [
+      ...(Array.isArray(productHistory) ? productHistory : []),
+      ...(Array.isArray(categoryHistory) ? categoryHistory : []),
+      ...(Array.isArray(videoHistory) ? videoHistory : [])
+    ];
+
+    // Sort by dateTime descending and limit
+    return allLogs
+      .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime())
+      .slice(0, limit);
+  } catch (error) {
+    console.error("Recent Activity Fetch Error:", error);
+    return [];
+  }
+}

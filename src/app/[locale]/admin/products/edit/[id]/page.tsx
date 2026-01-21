@@ -4,8 +4,10 @@ import { useState, useEffect, use } from "react";
 import { getCategories, getProductById, updateProduct, uploadImage, getImageUrl } from "@/lib/api";
 import { Category, ProductDetailDto } from "@/types";
 import { useRouter } from "@/i18n/routing";
-import { Save, X, Upload, Loader2, Search } from "lucide-react";
+import { Save, X, Upload, Loader2, Search, History } from "lucide-react";
 import Image from "next/image";
+import HistoryModal from "@/components/admin/HistoryModal";
+import CategorySelector from "@/components/admin/CategorySelector";
 
 export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -16,6 +18,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [catLoading, setCatLoading] = useState(true);
   const [error, setError] = useState("");
   const [categorySearch, setCategorySearch] = useState("");
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
   // Şəkil state-ləri
   const [mainImage, setMainImage] = useState<File | null>(null);
@@ -268,9 +271,18 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           <h1 className="text-2xl font-bold text-white">Məhsulu Redaktə Et</h1>
           <p className="text-slate-400 text-sm mt-1">Məhsul məlumatlarını yeniləyin</p>
         </div>
-        <button type="button" onClick={() => router.back()} className="text-slate-400 hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-800/50 transition-all">
-          <X size={18} /> Ləğv et
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setHistoryModalOpen(true)}
+            className="text-slate-400 hover:text-violet-400 flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-violet-500/10 transition-all border border-transparent hover:border-violet-500/20"
+          >
+            <History size={18} /> Tarixçə
+          </button>
+          <button type="button" onClick={() => router.back()} className="text-slate-400 hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-800/50 transition-all">
+            <X size={18} /> Ləğv et
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -301,68 +313,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Kateqoriyalar <span className="text-red-400">*</span></label>
 
-                {/* Selected Categories Chips */}
-                {categories.length > 0 && formState.categoryIds.length > 0 && (
-                  <div className="mb-3 flex flex-wrap gap-2 p-3 bg-slate-800/30 rounded-xl border border-slate-700/30">
-                    <span className="text-xs font-medium text-slate-400 w-full mb-1">Seçilmişlər:</span>
-                    {flattenCategories(categories)
-                      .filter(c => formState.categoryIds.includes(c.id))
-                      .map(cat => (
-                        <div key={`selected-chip-${cat.id}`} className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-lg text-xs flex items-center gap-1.5 transition-all hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 group">
-                          <span>{cat.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleCategoryToggle(cat.id)}
-                            className="text-blue-400/50 group-hover:text-red-400"
-                          >
-                            <X size={12} />
-                          </button>
-                        </div>
-                      ))}
-                  </div>
-                )}
-
-                {/* Category Search */}
-                <div className="relative mb-2">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search size={14} className="text-slate-500" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Kateqoriya axtar..."
-                    value={categorySearch}
-                    onChange={(e) => setCategorySearch(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
-                  />
-                </div>
-
-                <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 max-h-48 overflow-y-auto space-y-1 scrollbar-hide">
-                  {catLoading ? (
-                    <p className="text-sm text-slate-500">Yüklənir...</p>
-                  ) : categories.length === 0 ? (
-                    <p className="text-sm text-slate-500">Kateqoriya tapılmadı</p>
-                  ) : (
-                    flattenCategories(categories)
-                      .filter(c => c.name.toLowerCase().includes(categorySearch.toLowerCase()))
-                      .map((c, index) => (
-                        <label
-                          key={`edit-cat-${c.id}-${index}`}
-                          className="flex items-center gap-2 cursor-pointer hover:bg-slate-700/30 p-2 rounded-lg transition-colors"
-                          style={{ paddingLeft: categorySearch ? '8px' : `${8 + c.level * 16}px` }} // Search vaxtı indentation-ı ləğv et
-                        >
-                          <input
-                            type="checkbox"
-                            checked={formState.categoryIds.includes(c.id)}
-                            onChange={() => handleCategoryToggle(c.id)}
-                            className="w-4 h-4 text-blue-500 bg-slate-700 border-slate-600 rounded focus:ring-blue-500/30"
-                          />
-                          <span className="text-sm font-medium text-slate-300">
-                            {(!categorySearch && c.level > 0) && "└─ "}{c.name}
-                          </span>
-                        </label>
-                      ))
-                  )}
-                </div>
+                {/* Custom Category Selector Component */}
+                <CategorySelector
+                  categories={categories}
+                  selectedIds={formState.categoryIds}
+                  onChange={(ids) => setFormState({ ...formState, categoryIds: ids })}
+                  mode="multiple"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -514,6 +471,15 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           </button>
         </div>
       </form>
+
+      {/* History Modal */}
+      <HistoryModal
+        isOpen={historyModalOpen}
+        onClose={() => setHistoryModalOpen(false)}
+        tableName="Products"
+        recordId={id}
+        title="Məhsul Tarixçəsi"
+      />
     </div>
   );
 }

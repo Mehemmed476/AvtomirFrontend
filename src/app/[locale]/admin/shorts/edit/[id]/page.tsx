@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { getShortVideoById, updateShortVideo } from "@/lib/api";
-import { ArrowLeft, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2, History } from "lucide-react";
 import { Link, useRouter } from "@/i18n/routing";
+import HistoryModal from "@/components/admin/HistoryModal";
 
 export default function EditShortPage() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function EditShortPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
   // YouTube video ID-ni linkdən çıxar
   const getYouTubeId = (url: string) => {
@@ -96,17 +98,26 @@ export default function EditShortPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link
-          href="/admin/shorts"
-          className="p-2 text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all"
-        >
-          <ArrowLeft size={20} />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-white">Video Redaktə Et</h1>
-          <p className="text-slate-400 text-sm mt-1">Video məlumatlarını yeniləyin</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/admin/shorts"
+            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all"
+          >
+            <ArrowLeft size={20} />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-white">Video Redaktə Et</h1>
+            <p className="text-slate-400 text-sm mt-1">Video məlumatlarını yeniləyin</p>
+          </div>
         </div>
+        <button
+          type="button"
+          onClick={() => setHistoryModalOpen(true)}
+          className="text-slate-400 hover:text-violet-400 flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-violet-500/10 transition-all border border-transparent hover:border-violet-500/20"
+        >
+          <History size={18} /> Tarixçə
+        </button>
       </div>
 
       {/* Form */}
@@ -209,6 +220,15 @@ export default function EditShortPage() {
           </button>
         </div>
       </form>
+
+      {/* History Modal */}
+      <HistoryModal
+        isOpen={historyModalOpen}
+        onClose={() => setHistoryModalOpen(false)}
+        tableName="ShortVideos"
+        recordId={id}
+        title="Video Tarixçəsi"
+      />
     </div>
   );
 }

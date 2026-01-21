@@ -1,11 +1,10 @@
-"use client";
-
 import { useState, useEffect } from "react";
-import { getCategories, createProduct, uploadImage } from "@/lib/api";
+import { getCategories, createProduct, uploadImage, getProducts } from "@/lib/api";
 import { Category } from "@/types";
 import { useRouter } from "@/i18n/routing";
 import { Save, X, Upload, Loader2, Search } from "lucide-react";
 import Image from "next/image";
+import CategorySelector from "@/components/admin/CategorySelector";
 
 export default function CreateProductPage() {
   const router = useRouter();
@@ -122,17 +121,35 @@ export default function CreateProductPage() {
         }
       }
 
+      // 3.0 SKU Avtomatik Generasiya
+      let generatedSku = "SKU-10000";
+      try {
+        const latestProducts = await getProducts(1, 1); // Ən son məhsulu gətiririk
+        if (latestProducts?.success && latestProducts.data?.items?.length > 0) {
+          const lastSku = latestProducts.data.items[0].sku;
+          if (lastSku && lastSku.startsWith("SKU-")) {
+            const lastNumber = parseInt(lastSku.replace("SKU-", ""), 10);
+            if (!isNaN(lastNumber)) {
+              generatedSku = `SKU-${lastNumber + 1}`;
+            }
+          }
+        }
+      } catch (err) {
+        console.error("SKU generation error:", err);
+        // Fallback to default if error
+      }
+
       // 3. Form datanı state-dən topla
       const productData = {
         name: formState.name,
-        sku: formState.sku || undefined,
+        sku: generatedSku, // Auto-generated SKU
         price: parseFloat(formState.price),
         oldPrice: formState.oldPrice ? parseFloat(formState.oldPrice) : undefined,
         shortDescription: formState.shortDescription,  // REQUIRED
         description: formState.description || undefined,
         mainImageUrl: mainImageUpload.data,
-        galleryImageUrls: galleryUrls,  // DEĞİŞTİ: Her zaman array
-        categoryIds: formState.categoryIds,  // DEĞİŞTİ: Artıq array-dir
+        galleryImageUrls: galleryUrls,
+        categoryIds: formState.categoryIds,
         isNew: formState.isNew,
         isInStock: true,
         videoLink: formState.videoLink || undefined
@@ -186,10 +203,7 @@ export default function CreateProductPage() {
                 <input value={formState.name} onChange={(e) => setFormState({ ...formState, name: e.target.value })} required className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="Məs: BMW M5 Radiator" />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">SKU / Məhsul Kodu</label>
-                <input value={formState.sku} onChange={(e) => setFormState({ ...formState, sku: e.target.value })} className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 outline-none transition-all" placeholder="Məs: BMW-RAD-001" />
-              </div>
+              {/* SKU Input Hidden - Auto Generated */}
 
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Video Link</label>
@@ -199,68 +213,13 @@ export default function CreateProductPage() {
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Kateqoriyalar <span className="text-red-400">*</span></label>
 
-                {/* Selected Categories Chips */}
-                {categories.length > 0 && formState.categoryIds.length > 0 && (
-                  <div className="mb-3 flex flex-wrap gap-2 p-3 bg-slate-800/30 rounded-xl border border-slate-700/30">
-                    <span className="text-xs font-medium text-slate-400 w-full mb-1">Seçilmişlər:</span>
-                    {flattenCategories(categories)
-                      .filter(c => formState.categoryIds.includes(c.id))
-                      .map(cat => (
-                        <div key={`selected-chip-${cat.id}`} className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-lg text-xs flex items-center gap-1.5 transition-all hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 group">
-                          <span>{cat.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleCategoryToggle(cat.id)}
-                            className="text-blue-400/50 group-hover:text-red-400"
-                          >
-                            <X size={12} />
-                          </button>
-                        </div>
-                      ))}
-                  </div>
-                )}
-
-                {/* Category Search */}
-                <div className="relative mb-2">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search size={14} className="text-slate-500" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Kateqoriya axtar..."
-                    value={categorySearch}
-                    onChange={(e) => setCategorySearch(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
-                  />
-                </div>
-
-                <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 max-h-48 overflow-y-auto space-y-1 scrollbar-hide">
-                  {catLoading ? (
-                    <p className="text-sm text-slate-500">Yüklənir...</p>
-                  ) : categories.length === 0 ? (
-                    <p className="text-sm text-slate-500">Kateqoriya tapılmadı</p>
-                  ) : (
-                    flattenCategories(categories)
-                      .filter(c => c.name.toLowerCase().includes(categorySearch.toLowerCase()))
-                      .map((c, index) => (
-                        <label
-                          key={`create-cat-${c.id}-${index}`}
-                          className="flex items-center gap-2 cursor-pointer hover:bg-slate-700/30 p-2 rounded-lg transition-colors"
-                          style={{ paddingLeft: categorySearch ? '8px' : `${8 + c.level * 16}px` }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={formState.categoryIds.includes(c.id)}
-                            onChange={() => handleCategoryToggle(c.id)}
-                            className="w-4 h-4 text-blue-500 bg-slate-700 border-slate-600 rounded focus:ring-blue-500/30"
-                          />
-                          <span className="text-sm font-medium text-slate-300">
-                            {(!categorySearch && c.level > 0) && "└─ "}{c.name}
-                          </span>
-                        </label>
-                      ))
-                  )}
-                </div>
+                {/* Custom Category Selector Component */}
+                <CategorySelector
+                  categories={categories}
+                  selectedIds={formState.categoryIds}
+                  onChange={(ids) => setFormState({ ...formState, categoryIds: ids })}
+                  mode="multiple"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">

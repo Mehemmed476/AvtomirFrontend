@@ -3,7 +3,7 @@
 import { useRouter } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
-import { X, Filter, Check, ChevronRight, ChevronDown, Folder, FolderOpen } from "lucide-react";
+import { X, Filter, Check, ChevronRight, ChevronDown, Search } from "lucide-react";
 import { Category } from "@/types";
 import { useDebouncedCallback } from "use-debounce";
 import { useTranslations } from "next-intl";
@@ -20,6 +20,7 @@ export default function ShopSidebar({ categories, onClose }: Props) {
 
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
+  const [categorySearch, setCategorySearch] = useState("");
   const selectedCatId = searchParams.get("categoryId");
 
   // Expanded categories state
@@ -97,10 +98,49 @@ export default function ShopSidebar({ categories, onClose }: Props) {
   const clearFilters = () => {
     setMinPrice("");
     setMaxPrice("");
-    setExpandedCategories(new Set()); // Collapse all on clear? Optional.
+    setCategorySearch("");
+    setExpandedCategories(new Set());
     router.push("/shop");
     if (onClose) onClose();
   };
+
+  // Filter categories based on search - returns true if category or any child matches
+  const categoryMatchesSearch = useCallback((cat: Category, search: string): boolean => {
+    const searchLower = search.toLowerCase();
+    if (cat.name.toLowerCase().includes(searchLower)) return true;
+    if (cat.children) {
+      return cat.children.some(child => categoryMatchesSearch(child, search));
+    }
+    return false;
+  }, []);
+
+  // Get filtered categories
+  const getFilteredCategories = useCallback((cats: Category[]): Category[] => {
+    if (!categorySearch.trim()) return cats;
+    return cats.filter(cat => categoryMatchesSearch(cat, categorySearch));
+  }, [categorySearch, categoryMatchesSearch]);
+
+  // Auto-expand categories when searching
+  useEffect(() => {
+    if (categorySearch.trim()) {
+      const idsToExpand = new Set<number>();
+      const collectMatchingPaths = (cats: Category[], path: number[] = []) => {
+        for (const cat of cats) {
+          const currentPath = [...path, cat.id];
+          if (cat.name.toLowerCase().includes(categorySearch.toLowerCase())) {
+            // Add all parents to expand
+            path.forEach(id => idsToExpand.add(id));
+          }
+          if (cat.children && cat.children.length > 0) {
+            idsToExpand.add(cat.id); // Expand parent if searching
+            collectMatchingPaths(cat.children, currentPath);
+          }
+        }
+      };
+      collectMatchingPaths(categories);
+      setExpandedCategories(idsToExpand);
+    }
+  }, [categorySearch, categories]);
 
   // --- STİL MƏNTİQİ ---
   const containerClasses = onClose
@@ -152,7 +192,28 @@ export default function ShopSidebar({ categories, onClose }: Props) {
               <span className="w-[18px]" />
             )}
 
-            <span className="truncate select-none">{category.name}</span>
+            <span className="truncate select-none">
+              {categorySearch.trim() ? (
+                // Highlight matching text
+                (() => {
+                  const name = category.name;
+                  const searchLower = categorySearch.toLowerCase();
+                  const index = name.toLowerCase().indexOf(searchLower);
+                  if (index === -1) return name;
+                  return (
+                    <>
+                      {name.slice(0, index)}
+                      <span className="bg-primary/30 text-primary rounded px-0.5">
+                        {name.slice(index, index + categorySearch.length)}
+                      </span>
+                      {name.slice(index + categorySearch.length)}
+                    </>
+                  );
+                })()
+              ) : (
+                category.name
+              )}
+            </span>
           </div>
 
           {/* Checkmark for selection */}
@@ -167,7 +228,10 @@ export default function ShopSidebar({ categories, onClose }: Props) {
               className="absolute left-0 top-0 bottom-0 w-px bg-dark-700"
               style={{ left: `${paddingLeft + 9}px` }} // Align with the chevron center roughly
             />
-            {category.children!.map(child => renderCategory(child, level + 1))}
+            {(categorySearch.trim()
+              ? category.children!.filter(child => categoryMatchesSearch(child, categorySearch))
+              : category.children!
+            ).map(child => renderCategory(child, level + 1))}
           </div>
         )}
       </div>
@@ -234,11 +298,37 @@ export default function ShopSidebar({ categories, onClose }: Props) {
           <h4 className="font-medium text-gray-300 mb-3 text-sm uppercase tracking-wide">
             {t('categories')}
           </h4>
+
+          {/* Category Search */}
+          <div className="relative mb-3">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+            <input
+              type="text"
+              value={categorySearch}
+              onChange={(e) => setCategorySearch(e.target.value)}
+              placeholder="Kateqoriya axtar..."
+              className="w-full bg-dark-900 border border-dark-600 rounded-lg pl-9 pr-8 py-2 text-sm text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-gray-600"
+            />
+            {categorySearch && (
+              <button
+                onClick={() => setCategorySearch("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-white transition-colors"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
           <div className="space-y-1 pb-4">
             {categories.length > 0 ? (
-              categories
-                .filter(c => !c.parentId) // Only render roots first
-                .map(cat => renderCategory(cat))
+              getFilteredCategories(categories.filter(c => !c.parentId)).length > 0 ? (
+                getFilteredCategories(categories.filter(c => !c.parentId))
+                  .map(cat => renderCategory(cat))
+              ) : (
+                <p className="text-gray-500 text-sm text-center py-4">
+                  &ldquo;{categorySearch}&rdquo; üçün nəticə tapılmadı
+                </p>
+              )
             ) : (
               <p className="text-gray-600 text-xs italic">Kateqoriya tapılmadı</p>
             )}

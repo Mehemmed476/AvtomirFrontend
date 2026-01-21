@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getCategories, createCategory } from "@/lib/api";
 import { Category } from "@/types";
 import { useRouter } from "@/i18n/routing";
 import { Save, X, Loader2 } from "lucide-react";
+import CategorySelector from "@/components/admin/CategorySelector";
 
 export default function CreateCategoryPage() {
   const router = useRouter();
-  const [categories, setCategories] = useState<Category[]>([]);
   const [catLoading, setCatLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
 
   const [formState, setFormState] = useState({
     name: "",
@@ -19,12 +20,20 @@ export default function CreateCategoryPage() {
     parentId: ""
   });
 
+  const [categories, setCategories] = useState<Category[]>([]);
+
   useEffect(() => {
     getCategories().then(res => {
-      if (res?.success) setCategories(res.data);
+      if (res?.success) {
+        setCategories(res.data);
+      }
       setCatLoading(false);
     });
   }, []);
+
+
+
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,35 +44,35 @@ export default function CreateCategoryPage() {
       // 1. Parent ID Məntiqi:
       // Əgər boşdursa (""), Backend-ə null göndəririk.
       // Əgər doludursa, rəqəmə çeviririk.
-      const parentIdValue = formState.parentId && formState.parentId !== "" 
-          ? Number(formState.parentId) 
-          : null;
+      const parentIdValue = formState.parentId && formState.parentId !== ""
+        ? Number(formState.parentId)
+        : null;
 
       // 2. Data Hazırlığı:
       const categoryData = {
         name: formState.name,
         // DİQQƏT: Backend 'string' istədiyi üçün, boşdursa "" (boş string) göndəririk.
         // 'undefined' göndərsək xəta verəcək.
-        description: formState.description || "", 
+        description: formState.description || "",
         parentId: parentIdValue
       };
 
-      console.log("Göndərilən Data:", categoryData); 
+      console.log("Göndərilən Data:", categoryData);
 
       const res = await createCategory(categoryData);
       setLoading(false);
 
       if (res.success) {
         router.push("/admin/categories");
-        router.refresh(); 
+        router.refresh();
       } else {
         if (res.statusCode === 401) {
           setError("Sessiya bitib. Yenidən daxil olun.");
           setTimeout(() => router.push("/admin/login"), 2000);
         } else {
           // Xətaları göstər
-          const errorMsg = res.errors 
-            ? Object.values(res.errors).flat().join(", ") 
+          const errorMsg = res.errors
+            ? Object.values(res.errors).flat().join(", ")
             : res.message || "Xəta baş verdi";
           setError(errorMsg);
         }
@@ -128,19 +137,17 @@ export default function CreateCategoryPage() {
             <label className="block text-sm font-medium text-slate-300 mb-2">
               Ana Kateqoriya (İstəyə görə)
             </label>
-            <select
-              value={formState.parentId}
-              onChange={(e) => setFormState({ ...formState, parentId: e.target.value })}
-              disabled={catLoading}
-              className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/50 outline-none disabled:opacity-50 transition-all"
-            >
-              <option value="" className="bg-slate-800">Əsas Kateqoriya (Parent yoxdur)</option>
-              {categories.map(c => (
-                <option key={c.id} value={c.id} className="bg-slate-800">
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            <div className="border border-slate-700/50 rounded-xl overflow-hidden">
+              <CategorySelector
+                categories={categories}
+                selectedIds={formState.parentId ? [Number(formState.parentId)] : []}
+                onChange={(ids) => {
+                  const newId = ids.length > 0 ? ids[0].toString() : "";
+                  setFormState({ ...formState, parentId: newId });
+                }}
+                mode="single"
+              />
+            </div>
             <p className="text-xs text-slate-500 mt-2">
               Əgər alt kateqoriya yaratmaq istəyirsinizsə, ana kateqoriyanı seçin.
             </p>

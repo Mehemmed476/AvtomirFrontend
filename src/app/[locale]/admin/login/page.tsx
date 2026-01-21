@@ -32,7 +32,7 @@ export default function AdminLoginPage() {
 
         if (token) {
           // Cookie - middleware oxuya bilsin deyə
-          Cookies.set('token', token, { expires: 1 });
+          Cookies.set('token', token, { expires: 1, path: '/' });
 
           toast.success('Xoş gəldiniz!');
           router.refresh();

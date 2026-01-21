@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useRef } from "react";
 import { getCategories, getCategoryById, updateCategory } from "@/lib/api";
 import { Category } from "@/types";
 import { useRouter } from "@/i18n/routing";
-import { Save, X, Loader2 } from "lucide-react";
+import { Save, X, Loader2, History } from "lucide-react";
+import HistoryModal from "@/components/admin/HistoryModal";
+import CategorySelector from "@/components/admin/CategorySelector";
 
 export default function EditCategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -14,6 +16,8 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState("");
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [selectedParentId, setSelectedParentId] = useState<string>("");
 
   useEffect(() => {
     async function loadData() {
@@ -23,15 +27,20 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
       ]);
 
       if (catRes?.success) {
-        // Özünü parent kimi seçməsinə icazə vermə
-        const filtered = catRes.data.filter(c => c.id !== parseInt(id));
-        setCategories(filtered);
+        setCategories(catRes.data);
       }
-      if (currentCat?.success) setCategory(currentCat.data);
+      if (currentCat?.success) {
+        setCategory(currentCat.data);
+        setSelectedParentId(currentCat.data.parentId?.toString() || "");
+      }
       setLoading(false);
     }
     loadData();
   }, [id]);
+
+
+
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,13 +51,11 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
       const form = e.currentTarget;
       const formData = new FormData(form);
 
-      const parentIdValue = formData.get("parentId") as string;
-
       const categoryData = {
         id: parseInt(id),
         name: formData.get("name") as string,
         description: (formData.get("description") as string),
-        parentId: parentIdValue ? parseInt(parentIdValue) : null
+        parentId: selectedParentId ? parseInt(selectedParentId) : null
       };
 
       const res = await updateCategory(parseInt(id), categoryData);
@@ -106,13 +113,22 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
           <h1 className="text-2xl font-bold text-white">Kateqoriyanı Redaktə Et</h1>
           <p className="text-slate-400 text-sm mt-1">ID: {category.id}</p>
         </div>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="text-slate-400 hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-800/50 transition-all"
-        >
-          <X size={18} /> Ləğv et
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setHistoryModalOpen(true)}
+            className="text-slate-400 hover:text-violet-400 flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-violet-500/10 transition-all border border-transparent hover:border-violet-500/20"
+          >
+            <History size={18} /> Tarixçə
+          </button>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="text-slate-400 hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-800/50 transition-all"
+          >
+            <X size={18} /> Ləğv et
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -153,18 +169,16 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
             <label className="block text-sm font-medium text-slate-300 mb-2">
               Ana Kateqoriya (İstəyə görə)
             </label>
-            <select
-              name="parentId"
-              defaultValue={category.parentId || ""}
-              className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/50 outline-none transition-all"
-            >
-              <option value="" className="bg-slate-800">Əsas Kateqoriya (Parent yoxdur)</option>
-              {categories.map(c => (
-                <option key={c.id} value={c.id} className="bg-slate-800">
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            <CategorySelector
+              categories={categories}
+              selectedIds={selectedParentId ? [Number(selectedParentId)] : []}
+              onChange={(ids) => {
+                const newId = ids.length > 0 ? ids[0].toString() : "";
+                setSelectedParentId(newId);
+              }}
+              mode="single"
+              excludeId={parseInt(id)}
+            />
             <p className="text-xs text-slate-500 mt-2">
               Əgər alt kateqoriya kimi dəyişmək istəyirsinizsə, ana kateqoriyanı seçin.
             </p>
@@ -189,6 +203,15 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
           </button>
         </div>
       </form>
+
+      {/* History Modal */}
+      <HistoryModal
+        isOpen={historyModalOpen}
+        onClose={() => setHistoryModalOpen(false)}
+        tableName="Categories"
+        recordId={id}
+        title="Kateqoriya Tarixçəsi"
+      />
     </div>
   );
 }

@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import {
   Package, FolderTree, Play, Settings, Plus, ArrowRight, TrendingUp,
   Calendar, Loader2, Box, Film, Sun, Moon, Sunset, Phone, Mail, MapPin,
-  ExternalLink, RefreshCw
+  ExternalLink, RefreshCw, History, Pencil, Trash2
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
-import { getProducts, getCategories, getShortVideos, getImageUrl, ShortVideoGetDto } from "@/lib/api";
+import { getProducts, getCategories, getShortVideos, getImageUrl, ShortVideoGetDto, getRecentActivity } from "@/lib/api";
 import { getSettingsClient } from "@/lib/settings";
-import { ProductListDto, Category, Settings as SettingsType } from "@/types";
+import { ProductListDto, Category, Settings as SettingsType, AuditLog } from "@/types";
 
 interface DashboardStats {
   totalProducts: number;
@@ -27,6 +27,7 @@ export default function AdminDashboard() {
   });
   const [recentProducts, setRecentProducts] = useState<ProductListDto[]>([]);
   const [recentVideos, setRecentVideos] = useState<ShortVideoGetDto[]>([]);
+  const [recentActivity, setRecentActivity] = useState<AuditLog[]>([]);
   const [siteSettings, setSiteSettings] = useState<SettingsType | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -41,11 +42,12 @@ export default function AdminDashboard() {
   const fetchDashboardData = async () => {
     setStats(prev => ({ ...prev, loading: true }));
     try {
-      const [productsRes, categoriesRes, videosRes, settingsRes] = await Promise.all([
+      const [productsRes, categoriesRes, videosRes, settingsRes, activityRes] = await Promise.all([
         getProducts(1, 5, { sort: 'newest' }),
         getCategories(),
         getShortVideos(),
-        getSettingsClient()
+        getSettingsClient(),
+        getRecentActivity(8)
       ]);
 
       setStats({
@@ -57,6 +59,7 @@ export default function AdminDashboard() {
 
       setRecentProducts(productsRes?.data?.items || []);
       setRecentVideos((videosRes?.data || []).slice(0, 5));
+      setRecentActivity(activityRes);
       setSiteSettings(settingsRes);
     } catch (error) {
       console.error("Dashboard data fetch error:", error);
@@ -81,6 +84,58 @@ export default function AdminDashboard() {
   const getYouTubeId = (url: string) => {
     const match = url.match(/(?:youtube\.com\/(?:shorts\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     return match ? match[1] : null;
+  };
+
+  // Activity helpers
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'Create': return <Plus size={12} className="text-emerald-400" />;
+      case 'Update': return <Pencil size={12} className="text-blue-400" />;
+      case 'Delete': return <Trash2 size={12} className="text-red-400" />;
+      default: return <History size={12} className="text-slate-400" />;
+    }
+  };
+
+  const getActivityBadge = (type: string) => {
+    switch (type) {
+      case 'Create': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+      case 'Update': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+      case 'Delete': return 'bg-red-500/10 text-red-400 border-red-500/20';
+      default: return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+    }
+  };
+
+  const getActivityText = (type: string) => {
+    switch (type) {
+      case 'Create': return 'Yaradıldı';
+      case 'Update': return 'Yeniləndi';
+      case 'Delete': return 'Silindi';
+      default: return type;
+    }
+  };
+
+  const getTableText = (tableName: string) => {
+    switch (tableName) {
+      case 'Products': return 'Məhsul';
+      case 'Categories': return 'Kateqoriya';
+      case 'ShortVideos': return 'Video';
+      default: return tableName;
+    }
+  };
+
+  const formatActivityTime = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return 'İndicə';
+    if (diffMins < 60) return `${diffMins} dəq əvvəl`;
+    if (diffHours < 24) return `${diffHours} saat əvvəl`;
+    if (diffDays < 7) return `${diffDays} gün əvvəl`;
+    return date.toLocaleDateString('az-AZ');
   };
 
   // Time-based greeting
@@ -426,6 +481,60 @@ export default function AdminDashboard() {
             )}
           </div>
 
+        </div>
+      </div>
+
+      {/* Recent Activity Section */}
+      <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800/50 rounded-2xl overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b border-slate-800/50">
+          <h3 className="font-semibold text-white flex items-center gap-2">
+            <History size={18} className="text-violet-400" />
+            Son Dəyişikliklər
+          </h3>
+        </div>
+
+        <div className="divide-y divide-slate-800/50">
+          {stats.loading ? (
+            <div className="p-8 flex justify-center">
+              <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+            </div>
+          ) : recentActivity.length === 0 ? (
+            <div className="p-8 text-center">
+              <History size={32} className="mx-auto text-slate-600 mb-2" />
+              <p className="text-slate-400 text-sm">Dəyişiklik tarixçəsi tapılmadı</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-slate-800/30">
+              {recentActivity.map((log) => (
+                <div
+                  key={log.id}
+                  className="bg-slate-900/50 p-4 hover:bg-slate-800/30 transition-colors"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${getActivityBadge(log.type)}`}>
+                      {getActivityIcon(log.type)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${getActivityBadge(log.type)}`}>
+                          {getActivityText(log.type)}
+                        </span>
+                        <span className="text-[10px] text-slate-500">
+                          {getTableText(log.tableName)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400 truncate">
+                        #{log.primaryKey}
+                      </p>
+                      <p className="text-[10px] text-slate-500 mt-1">
+                        {formatActivityTime(log.dateTime)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -110,6 +110,7 @@ export interface ProductListDto {
   isNew: boolean;
   isInStock: boolean;
   stockQuantity?: number;
+  sku?: string;
 }
 
 // Backend CategoryTreeDto - hierarchical menü üçün
@@ -149,4 +150,17 @@ export interface Settings {
   youtube?: string;
   tiktok?: string;
   footerDescription?: string;
+}
+
+// Audit Log - Dəyişiklik tarixçəsi
+export interface AuditLog {
+  id: number;
+  userId?: string;
+  type: 'Create' | 'Update' | 'Delete';
+  tableName: string;
+  dateTime: string;
+  oldValues?: string;
+  newValues?: string;
+  affectedColumns?: string;
+  primaryKey: string;
 }
