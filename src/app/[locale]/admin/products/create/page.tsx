@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { getCategories, createProduct, uploadImage, getProducts } from "@/lib/api";
 import { Category } from "@/types";
