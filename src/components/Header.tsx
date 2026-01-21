@@ -59,18 +59,35 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* 3. SAĞ TƏRƏF (Yalnız Dil Dəyişən) */}
-        <div className="hidden md:flex items-center gap-5">
-          <LanguageSwitcher />
-        </div>
+        {/* 3. SAĞ TƏRƏF (Düymə + Dil + Mobil Menyu) */}
+        <div className="flex items-center gap-2 md:gap-5">
+          {/* Online Al Button - Hər yerdə görünür */}
+          <a
+            href="https://birmarket.az/merchant/9950-avtomir-az?from_search=true&event=view_search_results&query=AVTOMIR.AZ&tips_type=items&search_type=standard"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-purple-600 hover:bg-purple-700 hover:scale-105 active:scale-95 text-white px-3 py-1.5 md:px-5 md:py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all shadow-lg shadow-purple-500/20 whitespace-nowrap flex items-center gap-2"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+            </span>
+            Online al
+          </a>
 
-        {/* 4. MOBİL MENYU DÜYMƏSİ */}
-        <button
-          className="md:hidden text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
+          {/* Desktop Language Switcher */}
+          <div className="hidden md:block">
+            <LanguageSwitcher />
+          </div>
+
+          {/* Mobil Menyu Düyməsi */}
+          <button
+            className="md:hidden text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
       </div>
 
       {/* 5. MOBİL MENYU AÇILANI */}
