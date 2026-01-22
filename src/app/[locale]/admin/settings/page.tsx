@@ -90,11 +90,10 @@ export default function AdminSettingsPage() {
 
       {/* Message */}
       {message && (
-        <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${
-          message.type === "success"
-            ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-            : "bg-red-500/10 border border-red-500/20 text-red-400"
-        }`}>
+        <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${message.type === "success"
+          ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
+          : "bg-red-500/10 border border-red-500/20 text-red-400"
+          }`}>
           {message.type === "success" ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
           <span>{message.text}</span>
         </div>
@@ -204,7 +203,7 @@ export default function AdminSettingsPage() {
               className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all"
             />
             <p className="mt-2 text-xs text-slate-500">
-              Google Maps-dan "Embed" linkini kopyalayın
+              Google Maps-dan "Share" {"->"} "Embed a map" {"->"} "COPY HTML" edib yalnız "src" içindəki linki kopyalayın. (Məsələn: https://www.google.com/maps/embed?pb=...)
             </p>
           </div>
 

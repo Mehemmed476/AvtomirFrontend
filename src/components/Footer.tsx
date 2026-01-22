@@ -121,12 +121,7 @@ export default function Footer({ settings }: FooterProps) {
               ></iframe>
 
               {/* Üzərinə basanda böyük xəritəyə keçid (Google Maps saytına) */}
-              <a
-                href={mapUrl}
-                target="_blank"
-                className="absolute inset-0 z-10"
-                aria-label="View on Google Maps"
-              ></a>
+
             </div>
           </div>
 
