@@ -79,8 +79,13 @@ export default function EditShortPage() {
     if (res.success) {
       router.push("/admin/shorts");
     } else {
-      const errorMsg = res.errors?.join(", ") || res.message || "Video yenilənmədi";
-      setError(errorMsg);
+      if (res.statusCode === 401) {
+        setError("Sizin sessiya bitib. Zəhmət olmasa yenidən login olun.");
+        setTimeout(() => router.push("/admin/login"), 2000);
+      } else {
+        const errorMsg = res.errors?.join(", ") || res.message || "Video yenilənmədi";
+        setError(errorMsg);
+      }
     }
   };
 

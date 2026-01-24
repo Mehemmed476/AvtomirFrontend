@@ -55,7 +55,12 @@ export default function CreateShortPage() {
     if (res.success) {
       router.push("/admin/shorts");
     } else {
-      setError(res.message || "Video yaradılmadı");
+      if (res.statusCode === 401) {
+        setError("Sizin sessiya bitib. Zəhmət olmasa yenidən login olun.");
+        setTimeout(() => router.push("/admin/login"), 2000);
+      } else {
+        setError(res.message || "Video yaradılmadı");
+      }
     }
   };
 
@@ -138,14 +143,12 @@ export default function CreateShortPage() {
           <button
             type="button"
             onClick={() => setIsActive(!isActive)}
-            className={`relative w-14 h-7 rounded-full transition-colors ${
-              isActive ? "bg-pink-500" : "bg-slate-600"
-            }`}
+            className={`relative w-14 h-7 rounded-full transition-colors ${isActive ? "bg-pink-500" : "bg-slate-600"
+              }`}
           >
             <span
-              className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${
-                isActive ? "translate-x-7" : "translate-x-0"
-              }`}
+              className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${isActive ? "translate-x-7" : "translate-x-0"
+                }`}
             />
           </button>
         </div>

@@ -3,10 +3,11 @@
 import { useEffect, useState, useCallback } from "react";
 import { getShortVideos, deleteShortVideo, ShortVideoGetDto } from "@/lib/api";
 import { Edit, Trash2, Plus, Play, ExternalLink } from "lucide-react";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 
 export default function AdminShortsPage() {
   const [videos, setVideos] = useState<ShortVideoGetDto[]>([]);
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
 
@@ -33,7 +34,12 @@ export default function AdminShortsPage() {
     if (res?.success) {
       await fetchVideos();
     } else {
-      alert("Xəta baş verdi: " + (res?.message || "Video silinmədi"));
+      if (res?.statusCode === 401) {
+        alert("Sizin sessiya bitib. Zəhmət olmasa yenidən login olun.");
+        router.push("/admin/login");
+      } else {
+        alert("Xəta baş verdi: " + (res?.message || "Video silinmədi"));
+      }
     }
   };
 
@@ -129,11 +135,10 @@ export default function AdminShortsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                          video.isActive
-                            ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                            : "bg-slate-500/10 text-slate-400 border border-slate-500/20"
-                        }`}>
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${video.isActive
+                          ? "bg-green-500/10 text-green-400 border border-green-500/20"
+                          : "bg-slate-500/10 text-slate-400 border border-slate-500/20"
+                          }`}>
                           {video.isActive ? "Aktiv" : "Deaktiv"}
                         </span>
                       </td>
