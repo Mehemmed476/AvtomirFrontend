@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { getShortVideoById, updateShortVideo } from "@/lib/api";
-import { ArrowLeft, Save, Loader2, History } from "lucide-react";
+import { ArrowLeft, Save, Loader2, History, Trash2 } from "lucide-react";
+import { deleteShortVideo } from "@/lib/api";
+import { useConfirm } from "@/components/admin/ConfirmModal";
+import toast from "react-hot-toast";
 import { Link, useRouter } from "@/i18n/routing";
 import HistoryModal from "@/components/admin/HistoryModal";
 
@@ -11,6 +14,7 @@ export default function EditShortPage() {
   const router = useRouter();
   const params = useParams();
   const id = Number(params.id);
+  const confirmDialog = useConfirm();
 
   const [title, setTitle] = useState("");
   const [link, setLink] = useState("");
@@ -19,6 +23,7 @@ export default function EditShortPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // YouTube video ID-ni linkdən çıxar
   const getYouTubeId = (url: string) => {
@@ -45,6 +50,29 @@ export default function EditShortPage() {
       fetchVideo();
     }
   }, [id]);
+
+  const handleDelete = async () => {
+    const confirmed = await confirmDialog({
+      title: "Videonu sil",
+      message: `"${title}" videosunu silmək istədiyinizə əminsiniz? Bu əməliyyat geri alına bilməz!`,
+      confirmText: "Sil",
+      cancelText: "Ləğv et",
+      type: "danger"
+    });
+
+    if (!confirmed) return;
+
+    setDeleteLoading(true);
+    const res = await deleteShortVideo(id);
+    setDeleteLoading(false);
+
+    if (res?.success) {
+      toast.success("Video uğurla silindi");
+      router.push("/admin/shorts");
+    } else {
+      toast.error("Silmə zamanı xəta baş verdi: " + (res?.message || "Video silinmədi"));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,6 +150,15 @@ export default function EditShortPage() {
           className="text-slate-400 hover:text-violet-400 flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-violet-500/10 transition-all border border-transparent hover:border-violet-500/20"
         >
           <History size={18} /> Tarixçə
+        </button>
+        <button
+          type="button"
+          onClick={handleDelete}
+          disabled={deleteLoading}
+          className="text-slate-400 hover:text-red-400 flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20 disabled:opacity-50"
+        >
+          {deleteLoading ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+          Sil
         </button>
       </div>
 

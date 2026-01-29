@@ -89,6 +89,7 @@ export interface Category {
   imageUrl?: string;  // ƏLAVƏ EDİLDİ
   parentId?: number;
   children?: Category[];
+  productCount?: number;  // Kateqoriyadakı məhsul sayı
 }
 
 // ============================================

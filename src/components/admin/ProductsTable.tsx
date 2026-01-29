@@ -7,6 +7,7 @@ import { Link, useRouter } from "@/i18n/routing";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { useConfirm } from "@/components/admin/ConfirmModal";
 
 interface Props {
   products: ProductListDto[];
@@ -14,18 +15,27 @@ interface Props {
 
 export default function ProductsTable({ products }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
 
   const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`"${name}" məhsulunu silmək istədiyinizə əminsiniz?`)) return;
+    const confirmed = await confirm({
+      title: "Məhsulu sil",
+      message: `"${name}" məhsulunu silmək istədiyinizə əminsiniz? Bu əməliyyat geri alına bilməz!`,
+      confirmText: "Sil",
+      cancelText: "Ləğv et",
+      type: "danger"
+    });
+
+    if (!confirmed) return;
 
     setDeleteLoading(id);
     try {
       const res = await deleteProduct(id);
-      
+
       if (res?.success) {
         toast.success("Məhsul uğurla silindi");
-        router.refresh(); // Səhifəni yeniləyir ki, silinən məhsul getsin
+        router.refresh();
       } else {
         toast.error(res?.message || "Xəta baş verdi");
       }

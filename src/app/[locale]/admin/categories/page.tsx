@@ -1,18 +1,24 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getCategories, deleteCategory } from "@/lib/api";
+import { getCategories, deleteCategory, bulkDeleteCategories, getCategoryProductCounts } from "@/lib/api";
 import { Category } from "@/types";
-import { Edit, Trash2, Plus, Folder, FolderOpen, ChevronRight, ChevronDown, Search, ChevronsUpDown } from "lucide-react";
+import { Edit, Trash2, Plus, Folder, FolderOpen, ChevronRight, ChevronDown, Search, ChevronsUpDown, Package, CheckSquare, Square } from "lucide-react";
 import { Link } from "@/i18n/routing";
+import { useConfirm } from "@/components/admin/ConfirmModal";
+import toast from "react-hot-toast";
 
 export default function AdminCategoriesPage() {
+  const confirm = useConfirm();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const [allExpanded, setAllExpanded] = useState(true);
+  const [productCounts, setProductCounts] = useState<Record<number, number>>({});
+  const [selectedCategories, setSelectedCategories] = useState<Set<number>>(new Set());
+  const [bulkDeleteLoading, setBulkDeleteLoading] = useState(false);
 
   // Tüm parent kategorilerin ID'lerini al (children olanlar)
   const getAllParentIds = useCallback((cats: Category[]): number[] => {
@@ -28,13 +34,19 @@ export default function AdminCategoriesPage() {
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
-    const res = await getCategories();
+    const [res, countsRes] = await Promise.all([
+      getCategories(),
+      getCategoryProductCounts()
+    ]);
     if (res?.success) {
       setCategories(res.data);
       // Varsayılan olarak tüm kategorileri aç
       const parentIds = getAllParentIds(res.data);
       setExpandedCategories(new Set(parentIds));
       setAllExpanded(true);
+    }
+    if (countsRes) {
+      setProductCounts(countsRes);
     }
     setLoading(false);
   }, [getAllParentIds]);
@@ -69,16 +81,85 @@ export default function AdminCategoriesPage() {
   }, [fetchCategories]);
 
   const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`"${name}" kateqoriyasını silmək istədiyinizə əminsiniz?`)) return;
+    const confirmed = await confirm({
+      title: "Kateqoriyanı sil",
+      message: `"${name}" kateqoriyasını silmək istədiyinizə əminsiniz? Bu əməliyyat geri alına bilməz!`,
+      confirmText: "Sil",
+      cancelText: "Ləğv et",
+      type: "danger"
+    });
+
+    if (!confirmed) return;
 
     setDeleteLoading(id);
     const res = await deleteCategory(id);
     setDeleteLoading(null);
 
     if (res?.success) {
+      toast.success("Kateqoriya uğurla silindi");
       await fetchCategories();
     } else {
-      alert("Xəta baş verdi: " + (res?.message || "Kateqoriya silinmədi"));
+      toast.error("Xəta baş verdi: " + (res?.message || "Kateqoriya silinmədi"));
+    }
+  };
+
+  // Bulk delete handlers
+  const toggleSelectCategory = (id: number) => {
+    setSelectedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  // Bütün kategori ID-lərini al
+  const getAllCategoryIds = (cats: Category[]): number[] => {
+    let ids: number[] = [];
+    for (const cat of cats) {
+      ids.push(cat.id);
+      if (cat.children && cat.children.length > 0) {
+        ids = ids.concat(getAllCategoryIds(cat.children));
+      }
+    }
+    return ids;
+  };
+
+  const toggleSelectAll = () => {
+    const allIds = getAllCategoryIds(categories);
+    if (selectedCategories.size === allIds.length) {
+      setSelectedCategories(new Set());
+    } else {
+      setSelectedCategories(new Set(allIds));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedCategories.size === 0) return;
+
+    const confirmed = await confirm({
+      title: "Çoxlu silmə",
+      message: `${selectedCategories.size} kateqoriyanı silmək istədiyinizə əminsiniz? Bu əməliyyat geri alına bilməz!`,
+      confirmText: `${selectedCategories.size} kateqoriyanı sil`,
+      cancelText: "Ləğv et",
+      type: "danger"
+    });
+
+    if (!confirmed) return;
+
+    setBulkDeleteLoading(true);
+    const res = await bulkDeleteCategories(Array.from(selectedCategories));
+    setBulkDeleteLoading(false);
+
+    if (res?.success) {
+      toast.success(`${res.data} kateqoriya uğurla silindi`);
+      setSelectedCategories(new Set());
+      await fetchCategories();
+    } else {
+      toast.error("Xəta baş verdi: " + (res?.message || "Kateqoriyalar silinmədi"));
     }
   };
 
@@ -102,8 +183,19 @@ export default function AdminCategoriesPage() {
 
     return (
       <div key={uniqueKey}>
-        <div className="flex items-center justify-between px-6 py-4 hover:bg-slate-800/30 transition-colors border-b border-slate-800/50 group">
+        <div className={`flex items-center justify-between px-6 py-4 hover:bg-slate-800/30 transition-colors border-b border-slate-800/50 group ${selectedCategories.has(category.id) ? 'bg-purple-500/10' : ''}`}>
           <div className="flex items-center gap-3" style={{ paddingLeft: `${indent}px` }}>
+            {/* Checkbox */}
+            <button
+              onClick={() => toggleSelectCategory(category.id)}
+              className="p-1 text-slate-400 hover:text-white transition-colors -ml-2"
+            >
+              {selectedCategories.has(category.id) ? (
+                <CheckSquare size={20} className="text-purple-400" />
+              ) : (
+                <Square size={20} />
+              )}
+            </button>
             {hasChildren ? (
               <button
                 onClick={() => toggleCategory(category.id)}
@@ -140,19 +232,35 @@ export default function AdminCategoriesPage() {
 
             <div className="flex flex-col">
               <span className="font-semibold text-white">{category.name}</span>
-              {level > 0 ? (
-                <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
-                  Alt Kateqoriya · Səviyyə {level}
-                </span>
-              ) : hasChildren ? (
-                <span className="text-[10px] text-purple-400 font-medium">
-                  {category.children!.length} alt kateqoriya
-                </span>
-              ) : null}
+              <div className="flex items-center gap-2">
+                {level > 0 ? (
+                  <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+                    Alt Kateqoriya · Səviyyə {level}
+                  </span>
+                ) : hasChildren ? (
+                  <span className="text-[10px] text-purple-400 font-medium">
+                    {category.children!.length} alt kateqoriya
+                  </span>
+                ) : null}
+                {productCounts[category.id] !== undefined && productCounts[category.id] > 0 && (
+                  <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-md font-medium">
+                    {productCounts[category.id]} məhsul
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            {productCounts[category.id] !== undefined && productCounts[category.id] > 0 && (
+              <Link
+                href={`/admin/products?categoryId=${category.id}`}
+                className="p-2.5 text-slate-500 hover:text-green-400 hover:bg-green-500/10 rounded-lg transition-all"
+                title="Məhsullara bax"
+              >
+                <Package size={18} />
+              </Link>
+            )}
             <Link
               href={`/admin/categories/edit/${category.id}`}
               className="p-2.5 text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all"
@@ -194,15 +302,48 @@ export default function AdminCategoriesPage() {
             Ümumi {countAllCategories(categories)} kateqoriya tapıldı
           </p>
         </div>
-        <Link
-          href="/admin/categories/create"
-          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-purple-500/25 font-medium"
-        >
-          <Plus size={20} /> Yeni Kateqoriya
-        </Link>
+        <div className="flex items-center gap-3">
+          {selectedCategories.size > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              disabled={bulkDeleteLoading}
+              className="bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-red-500/25 font-medium disabled:opacity-50"
+            >
+              {bulkDeleteLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Silinir...
+                </>
+              ) : (
+                <>
+                  <Trash2 size={18} />
+                  {selectedCategories.size} kateqoriyanı sil
+                </>
+              )}
+            </button>
+          )}
+          <Link
+            href="/admin/categories/create"
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-purple-500/25 font-medium"
+          >
+            <Plus size={20} /> Yeni Kateqoriya
+          </Link>
+        </div>
       </div>
 
       <div className="flex items-center gap-4 bg-slate-900/50 backdrop-blur-sm p-4 rounded-2xl border border-slate-800/50">
+        {/* Select All Checkbox */}
+        <button
+          onClick={toggleSelectAll}
+          className="p-2 text-slate-400 hover:text-white transition-colors hover:bg-slate-800 rounded-lg"
+          title={selectedCategories.size === getAllCategoryIds(categories).length ? "Hamısını seçmə" : "Hamısını seç"}
+        >
+          {categories.length > 0 && selectedCategories.size === getAllCategoryIds(categories).length ? (
+            <CheckSquare size={22} className="text-purple-400" />
+          ) : (
+            <Square size={22} />
+          )}
+        </button>
         <div className="relative flex-1">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search size={18} className="text-slate-500" />

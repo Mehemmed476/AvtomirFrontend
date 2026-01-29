@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(\"c:\\\\Users\\\\Maga\\\\Desktop\\\\Avtomir_Full\\\\frontend\\\\AvtomirFrontend\\\\src\\\\app\\\\[locale]\\\\admin\\\\settings\\\\page.tsx\")"
+      "Bash(\"c:\\\\Users\\\\Maga\\\\Desktop\\\\Avtomir_Full\\\\frontend\\\\AvtomirFrontend\\\\src\\\\app\\\\[locale]\\\\admin\\\\settings\\\\page.tsx\")",
+      "Bash(npx tsc:*)",
+      "Read(//c/Users/Maga/Documents/Projects/Avtomir/**)"
     ]
   }
 }

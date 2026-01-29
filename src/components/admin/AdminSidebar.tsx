@@ -3,9 +3,11 @@
 import { Link, usePathname } from "@/i18n/routing";
 import { LayoutDashboard, Package, FolderTree, LogOut, ExternalLink, Sparkles, Play, Settings } from "lucide-react";
 import { logout } from "@/lib/auth";
+import { useConfirm } from "@/components/admin/ConfirmModal";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const confirm = useConfirm();
 
   const links = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard, description: "Ümumi baxış" },
@@ -15,8 +17,16 @@ export default function AdminSidebar() {
     { href: "/admin/settings", label: "Ayarlar", icon: Settings, description: "Sayt ayarları" },
   ];
 
-  const handleLogout = () => {
-    if (confirm("Çıxış etmək istədiyinizə əminsiniz?")) {
+  const handleLogout = async () => {
+    const confirmed = await confirm({
+      title: "Çıxış",
+      message: "Çıxış etmək istədiyinizə əminsiniz?",
+      confirmText: "Çıxış et",
+      cancelText: "Ləğv et",
+      type: "warning"
+    });
+
+    if (confirmed) {
       logout();
     }
   };

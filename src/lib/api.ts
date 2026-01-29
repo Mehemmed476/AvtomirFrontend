@@ -113,6 +113,35 @@ export async function getCategories(): Promise<ApiResponse<Category[]> | null> {
   }
 }
 
+// Kateqoriyaların məhsul sayını əldə et
+export async function getCategoryProductCounts(): Promise<Record<number, number>> {
+  try {
+    const res = await fetch(`${API_URL}/categories/product-counts`, { cache: 'no-store' });
+
+    if (!res.ok) {
+      console.warn("Category product counts endpoint not available");
+      return {};
+    }
+
+    const data = await res.json();
+
+    // Backend { categoryId: count } formatında qaytarır
+    if (data && typeof data === 'object') {
+      // Əgər ApiResponse formatındadırsa
+      if (data.success !== undefined && data.data) {
+        return data.data;
+      }
+      // Əgər direct object-dirsə
+      return data;
+    }
+
+    return {};
+  } catch (error) {
+    console.error("Category Product Counts Error:", error);
+    return {};
+  }
+}
+
 export async function getProductBySlug(slug: string): Promise<ApiResponse<Product> | null> {
   try {
     const encodedSlug = encodeURIComponent(slug);
@@ -467,6 +496,54 @@ export async function deleteProduct(id: number): Promise<ApiResponse<null>> {
   }
 }
 
+// Çoxlu məhsul silmək
+export async function bulkDeleteProducts(ids: number[]): Promise<ApiResponse<number>> {
+  const token = getToken();
+
+  if (!token) {
+    return {
+      success: false,
+      message: "Token tapılmadı. Zəhmət olmasa yenidən login olun.",
+      data: 0,
+      statusCode: 401,
+      errors: ["Unauthorized"]
+    };
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/products/bulk`, {
+      method: "DELETE",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(ids)
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      return {
+        success: false,
+        message: `Məhsullar silinmədi: ${res.status} ${res.statusText}`,
+        data: 0,
+        statusCode: res.status,
+        errors: [errorText || "Bulk delete failed"]
+      };
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Bulk Delete Products Error:", error);
+    return {
+      success: false,
+      message: "Məhsullar silmə xətası",
+      data: 0,
+      statusCode: 500,
+      errors: [(error as Error).message]
+    };
+  }
+}
+
 // ============================================
 // CATEGORY CRUD OPERATIONS
 // ============================================
@@ -615,6 +692,54 @@ export async function deleteCategory(id: number): Promise<ApiResponse<null>> {
       success: false,
       message: "Kateqoriya silmə xətası",
       data: null,
+      statusCode: 500,
+      errors: [(error as Error).message]
+    };
+  }
+}
+
+// Çoxlu kateqoriya silmək
+export async function bulkDeleteCategories(ids: number[]): Promise<ApiResponse<number>> {
+  const token = getToken();
+
+  if (!token) {
+    return {
+      success: false,
+      message: "Token tapılmadı. Zəhmət olmasa yenidən login olun.",
+      data: 0,
+      statusCode: 401,
+      errors: ["Unauthorized"]
+    };
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/categories/bulk`, {
+      method: "DELETE",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(ids)
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      return {
+        success: false,
+        message: `Kateqoriyalar silinmədi: ${res.status} ${res.statusText}`,
+        data: 0,
+        statusCode: res.status,
+        errors: [errorText || "Bulk delete failed"]
+      };
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Bulk Delete Categories Error:", error);
+    return {
+      success: false,
+      message: "Kateqoriyalar silmə xətası",
+      data: 0,
       statusCode: 500,
       errors: [(error as Error).message]
     };
@@ -907,6 +1032,64 @@ export async function deleteShortVideo(id: number): Promise<ApiResponse<null>> {
       success: false,
       message: "Video silmə xətası",
       data: null,
+      statusCode: 500,
+      errors: [(error as Error).message]
+    };
+  }
+}
+
+// Çoxlu video silmək
+export async function bulkDeleteShortVideos(ids: number[]): Promise<ApiResponse<number>> {
+  const token = getToken();
+
+  if (!token) {
+    return {
+      success: false,
+      message: "Token tapılmadı. Zəhmət olmasa yenidən login olun.",
+      data: 0,
+      statusCode: 401,
+      errors: ["Unauthorized"]
+    };
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/shortvideo/bulk`, {
+      method: "DELETE",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(ids)
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      return {
+        success: false,
+        message: `Videolar silinmədi: ${res.status} ${res.statusText}`,
+        data: 0,
+        statusCode: res.status,
+        errors: [errorText || "Bulk delete failed"]
+      };
+    }
+
+    const text = await res.text();
+    if (!text) {
+      return {
+        success: true,
+        message: "Videolar silindi",
+        data: ids.length,
+        statusCode: res.status
+      };
+    }
+
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Bulk Delete ShortVideos Error:", error);
+    return {
+      success: false,
+      message: "Videolar silmə xətası",
+      data: 0,
       statusCode: 500,
       errors: [(error as Error).message]
     };

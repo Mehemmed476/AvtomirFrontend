@@ -1,15 +1,20 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getShortVideos, deleteShortVideo, ShortVideoGetDto } from "@/lib/api";
-import { Edit, Trash2, Plus, Play, ExternalLink } from "lucide-react";
+import { getShortVideos, deleteShortVideo, bulkDeleteShortVideos, ShortVideoGetDto } from "@/lib/api";
+import { Edit, Trash2, Plus, Play, ExternalLink, CheckSquare, Square } from "lucide-react";
 import { Link, useRouter } from "@/i18n/routing";
+import { useConfirm } from "@/components/admin/ConfirmModal";
+import toast from "react-hot-toast";
 
 export default function AdminShortsPage() {
   const [videos, setVideos] = useState<ShortVideoGetDto[]>([]);
   const router = useRouter();
+  const confirm = useConfirm();
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const [selectedVideos, setSelectedVideos] = useState<Set<number>>(new Set());
+  const [bulkDeleteLoading, setBulkDeleteLoading] = useState(false);
 
   const fetchVideos = useCallback(async () => {
     setLoading(true);
@@ -25,20 +30,81 @@ export default function AdminShortsPage() {
   }, [fetchVideos]);
 
   const handleDelete = async (id: number, title: string) => {
-    if (!confirm(`"${title}" videosunu silmək istədiyinizə əminsiniz?`)) return;
+    const confirmed = await confirm({
+      title: "Videonu sil",
+      message: `"${title}" videosunu silmək istədiyinizə əminsiniz? Bu əməliyyat geri alına bilməz!`,
+      confirmText: "Sil",
+      cancelText: "Ləğv et",
+      type: "danger"
+    });
+
+    if (!confirmed) return;
 
     setDeleteLoading(id);
     const res = await deleteShortVideo(id);
     setDeleteLoading(null);
 
     if (res?.success) {
+      toast.success("Video uğurla silindi");
       await fetchVideos();
     } else {
       if (res?.statusCode === 401) {
-        alert("Sizin sessiya bitib. Zəhmət olmasa yenidən login olun.");
+        toast.error("Sizin sessiya bitib. Zəhmət olmasa yenidən login olun.");
         router.push("/admin/login");
       } else {
-        alert("Xəta baş verdi: " + (res?.message || "Video silinmədi"));
+        toast.error("Xəta baş verdi: " + (res?.message || "Video silinmədi"));
+      }
+    }
+  };
+
+  // Bulk delete handlers
+  const toggleSelectVideo = (id: number) => {
+    setSelectedVideos(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedVideos.size === videos.length) {
+      setSelectedVideos(new Set());
+    } else {
+      setSelectedVideos(new Set(videos.map(v => v.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedVideos.size === 0) return;
+
+    const confirmed = await confirm({
+      title: "Çoxlu silmə",
+      message: `${selectedVideos.size} videonu silmək istədiyinizə əminsiniz? Bu əməliyyat geri alına bilməz!`,
+      confirmText: `${selectedVideos.size} videonu sil`,
+      cancelText: "Ləğv et",
+      type: "danger"
+    });
+
+    if (!confirmed) return;
+
+    setBulkDeleteLoading(true);
+    const res = await bulkDeleteShortVideos(Array.from(selectedVideos));
+    setBulkDeleteLoading(false);
+
+    if (res?.success) {
+      toast.success(`${res.data} video uğurla silindi`);
+      setSelectedVideos(new Set());
+      await fetchVideos();
+    } else {
+      if (res?.statusCode === 401) {
+        toast.error("Sizin sessiya bitib. Zəhmət olmasa yenidən login olun.");
+        router.push("/admin/login");
+      } else {
+        toast.error("Xəta baş verdi: " + (res?.message || "Videolar silinmədi"));
       }
     }
   };
@@ -59,12 +125,33 @@ export default function AdminShortsPage() {
             {videos.length} video göstərilir
           </p>
         </div>
-        <Link
-          href="/admin/shorts/create"
-          className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-pink-500/25 font-medium"
-        >
-          <Plus size={20} /> Yeni Video
-        </Link>
+        <div className="flex items-center gap-3">
+          {selectedVideos.size > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              disabled={bulkDeleteLoading}
+              className="bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-red-500/25 font-medium disabled:opacity-50"
+            >
+              {bulkDeleteLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Silinir...
+                </>
+              ) : (
+                <>
+                  <Trash2 size={18} />
+                  {selectedVideos.size} videonu sil
+                </>
+              )}
+            </button>
+          )}
+          <Link
+            href="/admin/shorts/create"
+            className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-pink-500/25 font-medium"
+          >
+            <Plus size={20} /> Yeni Video
+          </Link>
+        </div>
       </div>
 
       {/* Table */}
@@ -73,6 +160,19 @@ export default function AdminShortsPage() {
           <table className="w-full text-left border-collapse">
             <thead className="bg-slate-800/50 border-b border-slate-700/50">
               <tr>
+                <th className="px-4 py-4 w-12">
+                  <button
+                    onClick={toggleSelectAll}
+                    className="p-1 text-slate-400 hover:text-white transition-colors"
+                    title={selectedVideos.size === videos.length ? "Hamısını seçmə" : "Hamısını seç"}
+                  >
+                    {videos.length > 0 && selectedVideos.size === videos.length ? (
+                      <CheckSquare size={20} className="text-pink-400" />
+                    ) : (
+                      <Square size={20} />
+                    )}
+                  </button>
+                </th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Video</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Başlıq</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
@@ -83,7 +183,7 @@ export default function AdminShortsPage() {
             <tbody className="divide-y divide-slate-800/50">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-16 text-center">
+                  <td colSpan={6} className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-8 h-8 border-2 border-pink-500/30 border-t-pink-500 rounded-full animate-spin" />
                       <span className="text-slate-400">Yüklənir...</span>
@@ -92,7 +192,7 @@ export default function AdminShortsPage() {
                 </tr>
               ) : videos.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-16 text-center">
+                  <td colSpan={6} className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center">
                         <Play size={24} className="text-slate-600" />
@@ -105,7 +205,19 @@ export default function AdminShortsPage() {
                 videos.map((video) => {
                   const youtubeId = getYouTubeId(video.link);
                   return (
-                    <tr key={video.id} className="hover:bg-slate-800/30 transition-colors group">
+                    <tr key={video.id} className={`hover:bg-slate-800/30 transition-colors group ${selectedVideos.has(video.id) ? 'bg-pink-500/10' : ''}`}>
+                      <td className="px-4 py-4">
+                        <button
+                          onClick={() => toggleSelectVideo(video.id)}
+                          className="p-1 text-slate-400 hover:text-white transition-colors"
+                        >
+                          {selectedVideos.has(video.id) ? (
+                            <CheckSquare size={20} className="text-pink-400" />
+                          ) : (
+                            <Square size={20} />
+                          )}
+                        </button>
+                      </td>
                       <td className="px-6 py-4">
                         <div className="w-20 h-12 rounded-lg bg-slate-800/50 flex-shrink-0 relative overflow-hidden border border-slate-700/50 group-hover:border-slate-600/50 transition-colors">
                           {youtubeId ? (
