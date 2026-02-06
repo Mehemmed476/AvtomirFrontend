@@ -88,7 +88,7 @@ export default function ShopToolbar({ categories }: Props) {
   return (
     <>
       {/* TOOLBAR CONTAINER */}
-      <div className="bg-dark-800 rounded-2xl p-4 border border-dark-700 mb-8 sticky top-20 z-30 lg:relative lg:top-0 shadow-xl shadow-black/10">
+      <div className="bg-dark-800 rounded-2xl p-4 border border-dark-700 mb-8 z-30 lg:sticky lg:top-20 shadow-xl shadow-black/10">
         
         {/* Bütün elementlər bir sətirdə */}
         <div className="flex flex-col lg:flex-row items-center gap-3">
