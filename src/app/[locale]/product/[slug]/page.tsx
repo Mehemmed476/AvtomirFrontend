@@ -4,9 +4,42 @@ import { Link } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import ProductGallery from '@/components/ProductGallery';
 import { Check, ShieldCheck, Truck, MessageCircle, ShoppingCart, Info, Package, PlayCircle, Youtube, ExternalLink } from 'lucide-react';
+import { Metadata } from 'next';
 
 interface Props {
   params: Promise<{ slug: string; locale: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  
+  const response = await getProductBySlug(slug);
+  const product = response?.data;
+
+  if (!product) return { title: 'Məhsul Tapılmadı' };
+
+  const siteUrl = 'https://avtomir.az';
+  const fullImageUrl = product.mainImageUrl?.startsWith('http') 
+  ? product.mainImageUrl 
+  : `${siteUrl}${product.mainImageUrl}`;
+
+  return {
+    title: product.name,
+    description: product.shortDescription || "Məhsul haqqında qısa məlumat",
+    openGraph: {
+      title: product.name,
+      description: product.shortDescription,
+      images: [
+        {
+          url: fullImageUrl,
+          width: 800,
+          height: 600,
+          alt: product.name,
+        },
+      ],
+      type: 'website',
+    },
+  };
 }
 
 export default async function ProductDetailPage({ params }: Props) {
