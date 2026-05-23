@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { LayoutGrid, List, ChevronDown, Search, X, Filter } from 'lucide-react';
 import { Menu, Transition } from '@headlessui/react';
-import { Fragment, useState, useEffect } from 'react';
+import { Fragment, useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { Category } from '@/types';
@@ -18,6 +18,7 @@ export default function ShopToolbar({ categories }: Props) {
   const t = useTranslations('Shop');
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [, startTransition] = useTransition();
 
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
@@ -54,7 +55,7 @@ export default function ShopToolbar({ categories }: Props) {
 
   const activeSort = sortOptions.find(o => o.value === currentSort) || sortOptions[0];
 
-  const updateParam = (key: string, value: string | null) => {
+  const updateParam = useCallback((key: string, value: string | null, method: 'push' | 'replace' = 'push') => {
     const params = new URLSearchParams(searchParams.toString());
     
     if (value && value !== 'default') {
@@ -66,13 +67,25 @@ export default function ShopToolbar({ categories }: Props) {
     if (key === 'sort' || key === 'search') {
       params.set('page', '1');
     }
-    
-    router.push(`/shop?${params.toString()}`, { scroll: false });
-  };
+
+    const nextQuery = params.toString();
+    if (nextQuery === searchParams.toString()) return;
+
+    const href = nextQuery ? `/shop?${nextQuery}` : '/shop';
+
+    startTransition(() => {
+      if (method === 'replace') {
+        router.replace(href, { scroll: false });
+      } else {
+        router.push(href, { scroll: false });
+      }
+    });
+  }, [router, searchParams, startTransition]);
 
   const handleSearch = useDebouncedCallback((value: string) => {
-    updateParam('search', value.trim() === '' ? null : value);
-  }, 500);
+    const trimmedValue = value.trim();
+    updateParam('search', trimmedValue === '' ? null : trimmedValue, 'replace');
+  }, 800);
 
   const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -81,8 +94,9 @@ export default function ShopToolbar({ categories }: Props) {
   };
 
   const clearSearch = () => {
+    handleSearch.cancel();
     setSearchTerm('');
-    updateParam('search', null);
+    updateParam('search', null, 'replace');
   };
 
   return (
